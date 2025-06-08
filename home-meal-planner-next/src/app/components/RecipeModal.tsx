@@ -1,4 +1,5 @@
 import { Recipe } from "../recipes";
+import { Button } from "./Button";
 
 interface RecipeModalProps {
   recipe: Recipe | null;
@@ -12,27 +13,32 @@ export function RecipeModal({ recipe, open, onClose }: RecipeModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative">
-        <button
+        <Button
+          variant="ghost"
           className="absolute top-2 right-2 text-gray-500 hover:text-black text-xl"
           onClick={onClose}
           aria-label="Sulje"
         >
           ×
-        </button>
+        </Button>
         <h2 className="text-lg font-bold mb-2">{recipe.title}</h2>
         <div className="text-sm text-gray-600 mb-2">{recipe.text}</div>
         {recipe.links.length > 0 && (
           <div className="mb-2">
             <div className="font-semibold text-xs mb-1">Linkit:</div>
-            <ul className="list-disc ml-5">
+            <div className="flex flex-col gap-1 text-sm">
               {recipe.links.map((link, i) => (
-                <li key={i}>
-                  <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
-                    {link}
-                  </a>
-                </li>
+                <a
+                  key={i}
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline break-all block"
+                >
+                  {link}
+                </a>
               ))}
-            </ul>
+            </div>
           </div>
         )}
         <div className="font-semibold text-xs mb-1">Sisältö:</div>

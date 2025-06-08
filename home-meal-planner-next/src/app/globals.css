@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-gray-900 bg-gray-50;
+}
+
+.button-theme-small {
+  @apply px-3 py-1 rounded bg-blue-500 text-white text-xs sm:text-sm font-semibold shadow hover:bg-blue-600 transition;
+}
+
+.week-theme-border {
+  @apply border border-blue-200;
+}
+
+.text-theme-secondary-contrast {
+  @apply text-gray-500;
+}
+
+.theme-pink {
+  --tw-bg-opacity: 1;
+  background-color: rgb(251 207 232 / var(--tw-bg-opacity));
+  color: #ad1457;
+}
+.theme-green {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 250 229 / var(--tw-bg-opacity));
+  color: #065f46;
+}
+.theme-sky {
+  --tw-bg-opacity: 1;
+  background-color: rgb(186 230 253 / var(--tw-bg-opacity));
+  color: #0369a1;
+}
+.theme-rainbow {
+  background: linear-gradient(90deg, #f87171 0%, #fbbf24 25%, #34d399 50%, #60a5fa 75%, #a78bfa 100%);
+  color: #fff;
+}
+.theme-rainbow .bg-white,
+.theme-rainbow .button-theme-small,
+.theme-rainbow .theme-button,
+.theme-rainbow .text-on-white {
+  color: #b45309 !important;
+}
+.theme-white {
+  background-color: #fff;
+  color: #222;
+}
+.theme-dark {
+  background-color: #222;
+  color: #fff;
+}
+
+.navbar-title-shadow {
+  text-shadow:
+    0 1px 4px rgba(0,0,0,0.1),
+    0 0 2px #fff,
+    0 0 1px #fff;
+}
+
+.theme-dark .button-theme-small,
+.theme-dark .theme-button {
+  background-color: #222 !important;
+  color: #fff !important;
+  border: 1.5px solid #fff !important;
+  box-shadow: none !important;
+}
+
+.theme-dark nav {
+  background-color: #222 !important;
+}
+.theme-dark .navbar-title-shadow {
+  color: #000 !important;
+  text-shadow:
+    0 1px 4px rgba(255,255,255,0.7),
+    0 0 2px #fff,
+    0 0 1px #fff;
+} 

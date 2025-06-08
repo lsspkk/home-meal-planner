@@ -25,7 +25,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    document.body.className = "";
+    document.body.className = document.body.className
+      .split(" ")
+      .filter((c) => !c.startsWith("theme-"))
+      .join(" ");
     document.body.classList.add(`theme-${theme}`);
     localStorage.setItem("theme", theme);
   }, [theme]);

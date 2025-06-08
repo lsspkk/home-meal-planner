@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Recipe } from "../recipes";
 import { WeekSelectorView } from "./WeekSelectorView";
-import { useWeeklySelection } from "../state";
+import { useWeekMenus } from "../hooks/useWeekMenus";
 
 interface Week {
   weekNumber: number;
@@ -14,31 +14,33 @@ interface Week {
 interface WeekSelectorProps {
   weeks: Week[];
   recipes: Recipe[];
-  layout?: "vertical" | "horizontal";
 }
 
-export function WeekSelector({ weeks, recipes, layout = "vertical" }: WeekSelectorProps) {
-  const [selected, setSelected] = useWeeklySelection();
+export function WeekSelector({ weeks, recipes, }: WeekSelectorProps) {
+  const { selection, setSelection, save: saveMenus } = useWeekMenus();
   const [modalRecipe, setModalRecipe] = useState<Recipe | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [openAccordionIdx, setOpenAccordionIdx] = useState<number | null>(null);
   const [selectedWeekIdx, setSelectedWeekIdx] = useState(0);
 
   const handleAdd = (weekIdx: number, recipeId: string) => {
-    setSelected((prev) => {
+    setSelection((prev) => {
       const prevIds = prev[weekIdx] || [];
       if (!prevIds.includes(recipeId)) {
         return { ...prev, [weekIdx]: [...prevIds, recipeId] };
       }
       return prev;
     });
+    saveMenus();
   };
 
   const handleRemove = (weekIdx: number, recipeId: string) => {
-    setSelected((prev) => {
+    setSelection((prev) => {
       const prevIds = prev[weekIdx] || [];
-      return { ...prev, [weekIdx]: prevIds.filter((id) => id !== recipeId) };
+      const newIds = prevIds.filter((id) => id !== recipeId);
+      return { ...prev, [weekIdx]: newIds };
     });
+    saveMenus();
   };
 
   const handleView = (recipe: Recipe) => {
@@ -65,7 +67,7 @@ export function WeekSelector({ weeks, recipes, layout = "vertical" }: WeekSelect
     <WeekSelectorView
       weeks={weeks}
       recipes={recipes}
-      selected={selected}
+      selected={selection}
       onAdd={handleAdd}
       onRemove={handleRemove}
       onView={handleView}
@@ -74,7 +76,6 @@ export function WeekSelector({ weeks, recipes, layout = "vertical" }: WeekSelect
       closeModal={closeModal}
       openAccordionIdx={openAccordionIdx}
       setOpenAccordionIdx={setOpenAccordionIdx}
-      layout={layout}
       selectedWeekIdx={selectedWeekIdx}
       onPrevWeek={handlePrevWeek}
       onNextWeek={handleNextWeek}

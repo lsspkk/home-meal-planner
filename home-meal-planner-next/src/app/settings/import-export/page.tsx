@@ -1,32 +1,46 @@
+"use client";
 import { useState } from "react";
-import { useWeeklySelection } from "../../useWeeklySelection";
+import { useWeekMenus } from "../../hooks/useWeekMenus";
+import { useRecipeCollection } from "../../hooks/useRecipeCollection";
+import { Button } from "../../components/Button";
 
 export default function ImportExportPage() {
-  const { selection, setSelection } = useWeeklySelection();
+  const { selection, setSelection, save: saveMenus } = useWeekMenus();
+  const { recipeCollection, setRecipeCollection, save: saveRecipes } = useRecipeCollection();
   const [importValue, setImportValue] = useState("");
   const [importError, setImportError] = useState("");
+  const [results, setResults] = useState("");
 
   const handleExport = () => {
-    const data = JSON.stringify(selection, null, 2);
+    const data = JSON.stringify({ weeklyMenus: selection, recipeCollection }, null, 2);
     navigator.clipboard.writeText(data);
   };
 
   const handleImport = () => {
     try {
       const parsed = JSON.parse(importValue);
-      if (typeof parsed !== "object" || Array.isArray(parsed)) throw new Error();
-      setSelection(parsed);
+      if (
+        typeof parsed !== "object" ||
+        Array.isArray(parsed) ||
+        !parsed.weeklyMenus ||
+        !parsed.recipeCollection
+      ) throw new Error();
+      setSelection(parsed.weeklyMenus);
+      setRecipeCollection(parsed.recipeCollection);
+      saveMenus();
+      saveRecipes();
+      setResults("Tiedot tuotu onnistuneesti!");
       setImportError("");
     } catch {
-      setImportError("Virheellinen JSON-muoto.");
+      setImportError("Virheellinen JSON-muoto tai puuttuvat kentät (weeklyMenus, recipeCollection).");
     }
   };
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-2">Tuo tai vie valinnat</h1>
-      <p className="text-gray-600 mb-4">Voit varmuuskopioida viikon valinnat tai tuoda ne toisesta laitteesta.</p>
-      <button onClick={handleExport} className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Kopioi valinnat JSONina</button>
+      <p className="text-gray-600 mb-4">Voit varmuuskopioida viikon valinnat ja reseptit tai tuoda ne toisesta laitteesta.</p>
+      <Button onClick={handleExport} variant="primary" className="mb-4">Kopioi valinnat JSONina</Button>
       <div>
         <textarea
           className="w-full border rounded p-2 mb-2"
@@ -35,9 +49,10 @@ export default function ImportExportPage() {
           value={importValue}
           onChange={e => setImportValue(e.target.value)}
         />
-        <button onClick={handleImport} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Tuo valinnat</button>
+        <Button onClick={handleImport} variant="secondary">Tuo valinnat</Button>
         {importError && <div className="text-red-500 mt-2">{importError}</div>}
       </div>
+      {results && <div className="text-green-500 mt-2">{results}</div>}
     </div>
   );
 } 

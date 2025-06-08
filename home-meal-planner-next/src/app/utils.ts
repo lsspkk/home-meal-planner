@@ -40,4 +40,31 @@ export function getWeeksInRange(start: Date, end: Date): WeekRange[] {
     current.setDate(current.getDate() + 7);
   }
   return weeks;
+}
+
+export interface MonthRange {
+  month: number;
+  year: number;
+  start: Date;
+  end: Date;
+  idx: number;
+}
+
+export function getMonthsInRange(start: Date, end: Date): MonthRange[] {
+  const months: MonthRange[] = [];
+  const current = new Date(start.getFullYear(), start.getMonth(), 1);
+  let monthIdx = 0;
+  while (current <= end) {
+    const monthStart = new Date(current);
+    const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+    months.push({
+      month: monthStart.getMonth() + 1,
+      year: monthStart.getFullYear(),
+      start: new Date(monthStart),
+      end: new Date(monthEnd),
+      idx: monthIdx++
+    });
+    current.setMonth(current.getMonth() + 1);
+  }
+  return months;
 } 

@@ -1,53 +1,78 @@
-import { WeekSelector } from "./components/WeekSelector";
-import { WeekSelectorView } from "./components/WeekSelectorView";
-import { useWeeklySelection } from "./useWeeklySelection";
-import { recipes } from "./recipes";
-import { getWeeksInRange } from "./utils";
+"use client";
+import { useMemo, useState } from "react";
+import { useRecipeCollection } from "./hooks/useRecipeCollection";
+import { useViewMode } from "./useViewMode";
+import { getWeeksInRange, getMonthsInRange } from "./utils";
+import WeeklyView from "./components/WeeklyView";
+import MonthlyView from "./components/MonthlyView";
+import { useWeekMenus } from "./hooks/useWeekMenus";
+import { DateNavigationProps } from "./components/DateNavigation";
+import { Recipe } from "./recipes";
 
 export default function HomePage() {
-  const {
-    selectedWeek,
-    setSelectedWeek,
-    selection,
-    setSelection,
-    addRecipeToDay,
-    removeRecipeFromDay,
-    clearDay,
-    clearAll,
-  } = useWeeklySelection();
+  const { 
+    selectedWeek, 
+    setSelectedWeek, 
+    selection, 
+  } = useWeekMenus();
+  const { recipeCollection } = useRecipeCollection();
+  const [viewMode] = useViewMode();
+  const [selectedMonthIdx, setSelectedMonthIdx] = useState(0);
+  const [selectedWeekIdx, setSelectedWeekIdx] = useState(selectedWeek);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [openAccordionIdx, setOpenAccordionIdx] = useState<number | null>(null);
 
-  // Calculate weeks for the next 2 months
-  const today = new Date();
-  const twoMonthsLater = new Date(today);
-  twoMonthsLater.setMonth(today.getMonth() + 2);
-  const weeks = getWeeksInRange(today, twoMonthsLater);
+  const today = useMemo(() => new Date(), []);
+  const twoMonthsLater = useMemo(() => {
+    const d = new Date(today);
+    d.setMonth(today.getMonth() + 2);
+    return d;
+  }, [today]);
+  const weeks = useMemo(() => getWeeksInRange(today, twoMonthsLater), [today, twoMonthsLater]);
+  const months = useMemo(() => getMonthsInRange(today, twoMonthsLater), [today, twoMonthsLater]);
 
+  const dateNavProps: DateNavigationProps = {
+    viewMode,
+    selectedWeekIdx,
+    setSelectedWeekIdx: (idx: number) => {
+      setSelectedWeekIdx(idx);
+      setSelectedWeek(idx);
+    },
+    selectedMonthIdx,
+    setSelectedMonthIdx,
+    weeks,
+    months,
+  };
+
+  const modalOpen = !!selectedRecipe;
+  const closeModal = () => setSelectedRecipe(null);
+  const onView = (recipe: Recipe) => setSelectedRecipe(recipe);
+
+  if (viewMode === "week") {
+    return (
+      <WeeklyView
+        weeks={weeks}
+        recipes={Object.values(recipeCollection)}
+        selection={selection}
+        selectedWeekIdx={selectedWeekIdx}
+        addRecipeToDay={() => {}}
+        removeRecipeFromDay={() => {}}
+        modalRecipe={selectedRecipe}
+        modalOpen={modalOpen}
+        closeModal={closeModal}
+        openAccordionIdx={openAccordionIdx}
+        setOpenAccordionIdx={setOpenAccordionIdx as (idx: number | null) => void}
+        dateNavProps={dateNavProps}
+        onView={onView}
+      />
+    );
+  }
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold mb-2">Viikon ruokalista</h1>
-      <p className="text-gray-600 mb-4">Valitse viikko ja suunnittele ateriat. Klikkaa reseptiä lisätäksesi sen päivälle.</p>
-      <WeekSelector
-        weeks={weeks}
-        recipes={recipes}
-        layout="vertical"
-      />
-      <WeekSelectorView
-        weeks={weeks}
-        recipes={recipes}
-        selected={selection}
-        onAdd={addRecipeToDay}
-        onRemove={removeRecipeFromDay}
-        onView={() => {}}
-        modalRecipe={null}
-        modalOpen={false}
-        closeModal={() => {}}
-        openAccordionIdx={null}
-        setOpenAccordionIdx={() => {}}
-        layout="vertical"
-        selectedWeekIdx={selectedWeek}
-        onPrevWeek={() => setSelectedWeek(Math.max(0, selectedWeek - 1))}
-        onNextWeek={() => setSelectedWeek(selectedWeek + 1)}
-      />
-    </div>
+    <MonthlyView
+      weeks={weeks}
+      months={months}
+      selectedMonthIdx={selectedMonthIdx}
+      dateNavProps={dateNavProps}
+    />
   );
 } 

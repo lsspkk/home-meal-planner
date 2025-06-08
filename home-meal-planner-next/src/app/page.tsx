@@ -14,22 +14,24 @@ export default function HomePage() {
     selectedWeek, 
     setSelectedWeek, 
     selection, 
+    setSelection,
+    save,
   } = useWeekMenus();
   const { recipeCollection } = useRecipeCollection();
-  const [viewMode] = useViewMode();
+  const { viewMode } = useViewMode();
   const [selectedMonthIdx, setSelectedMonthIdx] = useState(0);
   const [selectedWeekIdx, setSelectedWeekIdx] = useState(selectedWeek);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [openAccordionIdx, setOpenAccordionIdx] = useState<number | null>(null);
 
   const today = useMemo(() => new Date(), []);
-  const twoMonthsLater = useMemo(() => {
+  const sixMonthsLater = useMemo(() => {
     const d = new Date(today);
-    d.setMonth(today.getMonth() + 2);
+    d.setMonth(today.getMonth() + 6);
     return d;
   }, [today]);
-  const weeks = useMemo(() => getWeeksInRange(today, twoMonthsLater), [today, twoMonthsLater]);
-  const months = useMemo(() => getMonthsInRange(today, twoMonthsLater), [today, twoMonthsLater]);
+  const weeks = useMemo(() => getWeeksInRange(today, sixMonthsLater), [today, sixMonthsLater]);
+  const months = useMemo(() => getMonthsInRange(today, sixMonthsLater), [today, sixMonthsLater]);
 
   const dateNavProps: DateNavigationProps = {
     viewMode,
@@ -48,6 +50,22 @@ export default function HomePage() {
   const closeModal = () => setSelectedRecipe(null);
   const onView = (recipe: Recipe) => setSelectedRecipe(recipe);
 
+  const onAdd = (weekIdx: number, recipeId: string) => {
+    const newSelection = { ...selection };
+    if (!newSelection[weekIdx]) {
+      newSelection[weekIdx] = [];
+    }
+    newSelection[weekIdx].push(recipeId);
+    setSelection(newSelection);
+    setTimeout(save, 100);
+  };
+  const onRemove = (weekIdx: number, recipeId: string) => {
+    const newSelection = { ...selection };
+    newSelection[weekIdx] = newSelection[weekIdx].filter(id => id !== recipeId);
+    setSelection(newSelection);
+    setTimeout(save, 100)
+  };
+
   if (viewMode === "week") {
     return (
       <WeeklyView
@@ -55,8 +73,8 @@ export default function HomePage() {
         recipes={Object.values(recipeCollection)}
         selection={selection}
         selectedWeekIdx={selectedWeekIdx}
-        addRecipeToDay={() => {}}
-        removeRecipeFromDay={() => {}}
+        onAdd={onAdd}
+        onRemove={onRemove}
         modalRecipe={selectedRecipe}
         modalOpen={modalOpen}
         closeModal={closeModal}

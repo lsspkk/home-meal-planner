@@ -14,8 +14,8 @@ interface WeeklyViewProps {
   recipes: Recipe[];
   selection: Record<string, string[]>;
   selectedWeekIdx: number;
-  addRecipeToDay: (weekIdx: number, recipeId: string) => void;
-  removeRecipeFromDay: (weekIdx: number, recipeId: string) => void;
+  onAdd: (weekIdx: number, recipeId: string) => void;
+  onRemove: (weekIdx: number, recipeId: string) => void;
   modalRecipe: Recipe | null;
   modalOpen: boolean;
   closeModal: () => void;
@@ -30,8 +30,8 @@ export default function WeeklyView({
   recipes,
   selection,
   selectedWeekIdx,
-  addRecipeToDay,
-  removeRecipeFromDay,
+  onAdd,
+  onRemove,
   modalRecipe,
   modalOpen,
   closeModal,
@@ -49,8 +49,8 @@ export default function WeeklyView({
         weeks={[weeks[selectedWeekIdx]]}
         recipes={recipes}
         selected={selection}
-        onAdd={addRecipeToDay}
-        onRemove={removeRecipeFromDay}
+        onAdd={onAdd}
+        onRemove={onRemove}
         onView={onView}
         modalRecipe={modalRecipe}
         modalOpen={modalOpen}

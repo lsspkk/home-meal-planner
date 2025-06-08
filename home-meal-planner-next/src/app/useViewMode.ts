@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+"use client";
+import { useEffect, useState } from "react";
 
 export type ViewMode = "week" | "month";
 
-export function useViewMode(): [ViewMode, (mode: ViewMode) => void] {
+export function useViewMode() {
   const [viewMode, setViewModeState] = useState<ViewMode>(() => {
     if (typeof window !== "undefined") {
       return (localStorage.getItem("viewMode") as ViewMode) || "week";
@@ -11,13 +12,18 @@ export function useViewMode(): [ViewMode, (mode: ViewMode) => void] {
   });
 
   useEffect(() => {
-    localStorage.setItem("viewMode", viewMode);
-  }, [viewMode]);
+    const loadedMode = localStorage.getItem("viewMode") as ViewMode;
+    console.log("loadedMode", loadedMode);
+    if (loadedMode) {
+      setViewModeState(loadedMode);
+    }
+  }, []);
 
-  const setViewMode = (mode: ViewMode) => {
-    setViewModeState(mode);
+
+  const save = (mode: ViewMode) => {
     localStorage.setItem("viewMode", mode);
+    setViewModeState(mode);
   };
 
-  return [viewMode, setViewMode];
+  return { viewMode, save };
 } 

@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useRef } from "react";
 import { Button } from "./Button";
 
@@ -52,21 +52,10 @@ export function DateNavigation({
   return (
     <div
       ref={navRef}
-      className="flex items-center justify-center gap-2 py-2 select-none"
+      className="flex justify-between md:justify-center items-center justify-center gap-2 md:gap-8 py-2 select-none w-full md:w-auto"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {viewMode === "month" && (
-        <Button
-          variant="ghost"
-          className="p-1 sm:p-2 rounded"
-          onClick={() => setSelectedMonthIdx(Math.max(0, selectedMonthIdx - 1))}
-          disabled={selectedMonthIdx === 0}
-          aria-label="Edellinen kuukausi"
-        >
-          <ChevronDoubleLeftIcon className="w-5 h-5 sm:w-7 sm:h-7" />
-        </Button>
-      )}
       <Button
         variant="ghost"
         className="p-1 sm:p-2 rounded"
@@ -103,17 +92,6 @@ export function DateNavigation({
       >
         <ChevronRightIcon className="w-5 h-5 sm:w-7 sm:h-7" />
       </Button>
-      {viewMode === "month" && (
-        <Button
-          variant="ghost"
-          className="p-1 sm:p-2 rounded"
-          onClick={() => setSelectedMonthIdx(Math.min(months.length - 1, selectedMonthIdx + 1))}
-          disabled={selectedMonthIdx === months.length - 1}
-          aria-label="Seuraava kuukausi"
-        >
-          <ChevronDoubleRightIcon className="w-5 h-5 sm:w-7 sm:h-7" />
-        </Button>
-      )}
     </div>
   );
 } 

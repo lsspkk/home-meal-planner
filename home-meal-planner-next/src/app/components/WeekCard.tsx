@@ -37,7 +37,7 @@ export function WeekCard({
     return new Date(date).toLocaleDateString("fi-FI", { day: "2-digit", month: "2-digit", year: "numeric" });
   }
   return (
-    <div className="border-t border-b px-0 py-2 sm:border sm:rounded-lg sm:shadow-sm sm:p-4 week-theme-border">
+    <div className="border-t border-b px-0 py-2 md:border sm:rounded-lg sm:shadow-sm sm:p-4">
       <div className="flex flex-row items-center sm:justify-between mb-2 gap-2">
         <div className="flex-1 flex flex-col">
           <span className="font-semibold text-lg">
@@ -47,14 +47,6 @@ export function WeekCard({
             {formatDate(week.start)} - {formatDate(week.end)}
           </span>
         </div>
-        <Button
-          type="button"
-          aria-label="Siirry kauppalistaan"
-          onClick={() => router.push(`/market?week=${week.weekNumber}`)}
-          icon={<ShoppingCartIcon className="w-5 h-5" />}
-        >
-          <span className="hidden sm:inline">Kauppalista</span>
-        </Button>
         {openAccordionIdx === week.idx ? null : (
           <Button
             variant="primary"
@@ -65,6 +57,14 @@ export function WeekCard({
             <span className="hidden sm:inline">Lisää</span>
           </Button>
         )}
+        <Button
+          type="button"
+          aria-label="Siirry kauppalistaan"
+          onClick={() => router.push(`/market?week=${week.weekNumber}`)}
+          icon={<ShoppingCartIcon className="w-5 h-5" />}
+        >
+          <span className="hidden sm:inline">Kauppalista</span>
+        </Button>
       </div>
       <div className="mb-2 flex items-center hidden sm:flex">
         <div className="font-medium mb-1">Valitut reseptit:</div>

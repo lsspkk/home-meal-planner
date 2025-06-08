@@ -1,6 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { DateNavigation, DateNavigationProps } from "./DateNavigation";
+import { WeekCard } from "./WeekCard";
 
 const finnishMonths = [
   "Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu", "Toukokuu", "Kesäkuu",
@@ -45,7 +46,17 @@ export default function MonthlyView({
       </div>
       {/* List all weeks in the month */}
       {weeksInMonth.map((week) => (
-        <div key={week.idx} />
+        <WeekCard
+          key={week.idx}
+          week={week}
+          recipes={[]}
+          selected={{}}
+          onAdd={() => {}}
+          onRemove={() => {}}
+          onView={() => {}}
+          openAccordionIdx={null}
+          setOpenAccordionIdx={() => {}}
+        />
       ))}
       {/* Bottom: week/month navigation */}
       <DateNavigation {...dateNavProps} />

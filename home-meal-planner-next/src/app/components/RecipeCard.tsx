@@ -29,7 +29,7 @@ export function RecipeCard({ recipe, selected, onAdd, onRemove, onView }: Recipe
         </div>
       </div>
       <div className="text-xs text-gray-500 truncate mb-1">{recipe.text}</div>
-      <div className="flex gap-2 mt-2 sm:mt-0 flex-row-reverse sm:flex-row w-full justify-between">
+      <div className="flex gap-2 mt-2 sm:mt-0 flex-row-reverse sm:flex-row w-full md:w-auto justify-between md:justify-end md:ml-2">
         <Button
           variant="primary"
           onClick={onView}

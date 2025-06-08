@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Cog6ToothIcon, ArrowDownTrayIcon, PencilSquareIcon, SunIcon, MoonIcon, CalendarDaysIcon, CalendarIcon, SparklesIcon, HeartIcon, CloudIcon } from "@heroicons/react/24/outline";
 import { Theme, useTheme } from "../components/ThemeProvider";
-import { useState } from "react";
+import { useViewMode } from "../useViewMode";
 import { Button } from "../components/Button";
 
 function RainbowIcon({ className = "w-5 h-5" }) {
@@ -34,7 +34,7 @@ const themes = [
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const [viewMode, setViewMode] = useState<"week" | "month">("week");
+  const { viewMode, save } = useViewMode();
 
   return (
     <div className="space-y-8 max-w-xl mx-auto">
@@ -75,7 +75,7 @@ export default function SettingsPage() {
           <Button
             variant={viewMode === "week" ? "primary" : "outline"}
             className="flex items-center gap-2"
-            onClick={() => setViewMode("week")}
+            onClick={() => { save("week") }}
             type="button"
           >
             <CalendarDaysIcon className="w-5 h-5" />
@@ -84,7 +84,7 @@ export default function SettingsPage() {
           <Button
             variant={viewMode === "month" ? "primary" : "outline"}
             className="flex items-center gap-2"
-            onClick={() => setViewMode("month")}
+            onClick={() => { save("month") }}
             type="button"
           >
             <CalendarIcon className="w-5 h-5" />

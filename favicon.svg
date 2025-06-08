@@ -1,0 +1,36 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Shadow gradient for foods and plate -->
+    <radialGradient id="shadow" cx="70%" cy="80%" r="60%">
+      <stop offset="0%" stop-color="#bdbdbd" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Plate outer with shadow -->
+  <g>
+    <circle cx="32" cy="32" r="28" fill="#f5f5f5" stroke="#cccccc" stroke-width="4"/>
+    <ellipse cx="40" cy="44" rx="28" ry="8" fill="#e0e0e0"/>
+  </g>
+  <!-- Plate inner (deep plate effect, lighter gray, beneath food) -->
+  <circle cx="32" cy="32" r="18" fill="none" stroke="#e0e0e0" stroke-width="2"/>
+  <!-- Plate shadow -->
+  <ellipse cx="32" cy="54" rx="18" ry="3" fill="#e0e0e0"/>
+  <!-- Fish (rotated, larger, solid blue, with outline) -->
+  <g transform="rotate(-50 40 32)">
+    <ellipse cx="40" cy="32" rx="13" ry="7" fill="#4fc3f7" stroke="#1976d2" stroke-width="0.8"/>
+    <polygon points="53,32 60,27 60,37" fill="#4fc3f7" stroke="#1976d2" stroke-width="0.8"/>
+    <circle cx="46" cy="32" r="1.7" fill="#222"/>
+  </g>
+  <!-- Potatoes (much bigger yellow ovals, with outline) -->
+  <g>
+    <ellipse cx="24" cy="28" rx="8" ry="5" fill="#ffe082" stroke="#bfa040" stroke-width="0.8"/>
+    <ellipse cx="30" cy="33" rx="7" ry="3.5" fill="#ffe082" stroke="#bfa040" stroke-width="0.8"/>
+    <ellipse cx="16" cy="38" rx="6" ry="3" fill="#ffe082" stroke="#bfa040" stroke-width="0.8"/>
+  </g>
+  <!-- Lettuce (much bigger green curves, with outline) -->
+  <g>
+    <ellipse cx="22" cy="18" rx="7" ry="4" fill="#81c784" stroke="#388e3c" stroke-width="0.8"/>
+    <ellipse cx="30" cy="16" rx="5" ry="2.5" fill="#388e3c" stroke="#2e7031" stroke-width="0.8"/>
+    <ellipse cx="28" cy="24" rx="4" ry="2" fill="#66bb6a" stroke="#388e3c" stroke-width="0.8"/>
+  </g>
+</svg> 

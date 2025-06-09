@@ -4,6 +4,7 @@ import { useRecipeCollection } from "../hooks/useRecipeCollection";
 import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { recipes as staticRecipes, Recipe } from "../recipes";
+import { useAppState } from "../AppStateContext";
 
 // Regex patterns to remove quantities and units from ingredient strings for sorting/grouping
 const QUANTITY_REGEXES = [
@@ -27,9 +28,10 @@ type IngredientRecipe = {
 
 export default function MarketPageContent() {
   const searchParams = useSearchParams();
-  const { selection, selectedWeek } = useWeekMenus();
+  const { selection } = useWeekMenus();
   const { recipeCollection } = useRecipeCollection();
-  const weekNumber = Number(searchParams.get("week")) || selectedWeek;
+  const { selectedWeekIdx } = useAppState();
+  const weekNumber = Number(searchParams.get("week")) || selectedWeekIdx;
 
   // 1. Get all recipe IDs for the selected week
   const recipeIds: string[] = selection[weekNumber] || [];

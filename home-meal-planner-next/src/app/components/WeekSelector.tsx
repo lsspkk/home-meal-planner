@@ -17,30 +17,25 @@ interface WeekSelectorProps {
 }
 
 export function WeekSelector({ weeks, recipes, }: WeekSelectorProps) {
-  const { selection, setSelection, save: saveMenus } = useWeekMenus();
+  const { selection, save } = useWeekMenus();
   const [modalRecipe, setModalRecipe] = useState<Recipe | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [openAccordionIdx, setOpenAccordionIdx] = useState<number | null>(null);
   const [selectedWeekIdx, setSelectedWeekIdx] = useState(0);
 
   const handleAdd = (weekIdx: number, recipeId: string) => {
-    setSelection((prev) => {
-      const prevIds = prev[weekIdx] || [];
-      if (!prevIds.includes(recipeId)) {
-        return { ...prev, [weekIdx]: [...prevIds, recipeId] };
-      }
-      return prev;
-    });
-    saveMenus();
+    const newSelection = { ...selection };
+    if (!newSelection[weekIdx]) {
+      newSelection[weekIdx] = [];
+    }
+    newSelection[weekIdx].push(recipeId);
+    save(newSelection);
   };
 
   const handleRemove = (weekIdx: number, recipeId: string) => {
-    setSelection((prev) => {
-      const prevIds = prev[weekIdx] || [];
-      const newIds = prevIds.filter((id) => id !== recipeId);
-      return { ...prev, [weekIdx]: newIds };
-    });
-    saveMenus();
+    const newSelection = { ...selection };
+    newSelection[weekIdx] = newSelection[weekIdx].filter(id => id !== recipeId);
+    save(newSelection);
   };
 
   const handleView = (recipe: Recipe) => {

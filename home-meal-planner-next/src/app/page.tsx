@@ -8,19 +8,14 @@ import MonthlyView from "./components/MonthlyView";
 import { useWeekMenus } from "./hooks/useWeekMenus";
 import { DateNavigationProps } from "./components/DateNavigation";
 import { Recipe } from "./recipes";
+import { useAppState } from "./AppStateContext";
 
 export default function HomePage() {
-  const { 
-    selectedWeek, 
-    setSelectedWeek, 
-    selection, 
-    setSelection,
-    save,
-  } = useWeekMenus();
+  const { selection, save } = useWeekMenus();
   const { recipeCollection } = useRecipeCollection();
   const { viewMode } = useViewMode();
+  const { selectedWeekIdx } = useAppState();
   const [selectedMonthIdx, setSelectedMonthIdx] = useState(0);
-  const [selectedWeekIdx, setSelectedWeekIdx] = useState(selectedWeek);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [openAccordionIdx, setOpenAccordionIdx] = useState<number | null>(null);
 
@@ -35,11 +30,6 @@ export default function HomePage() {
 
   const dateNavProps: DateNavigationProps = {
     viewMode,
-    selectedWeekIdx,
-    setSelectedWeekIdx: (idx: number) => {
-      setSelectedWeekIdx(idx);
-      setSelectedWeek(idx);
-    },
     selectedMonthIdx,
     setSelectedMonthIdx,
     weeks,
@@ -55,15 +45,13 @@ export default function HomePage() {
     if (!newSelection[weekIdx]) {
       newSelection[weekIdx] = [];
     }
-    newSelection[weekIdx].push(recipeId);
-    setSelection(newSelection);
-    setTimeout(save, 100);
+    newSelection[weekIdx] = [...newSelection[weekIdx], recipeId];
+    save(newSelection);
   };
   const onRemove = (weekIdx: number, recipeId: string) => {
     const newSelection = { ...selection };
     newSelection[weekIdx] = newSelection[weekIdx].filter(id => id !== recipeId);
-    setSelection(newSelection);
-    setTimeout(save, 100)
+    save(newSelection);
   };
 
   if (viewMode === "week") {

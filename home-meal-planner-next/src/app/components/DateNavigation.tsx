@@ -2,11 +2,10 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useRef } from "react";
 import { Button } from "./Button";
+import { useAppState } from "../AppStateContext";
 
 export interface DateNavigationProps {
   viewMode: "week" | "month";
-  selectedWeekIdx: number;
-  setSelectedWeekIdx: (idx: number) => void;
   selectedMonthIdx: number;
   setSelectedMonthIdx: (idx: number) => void;
   weeks: { weekNumber: number; start: Date; end: Date; idx: number }[];
@@ -15,14 +14,13 @@ export interface DateNavigationProps {
 
 export function DateNavigation({
   viewMode,
-  selectedWeekIdx,
-  setSelectedWeekIdx,
   selectedMonthIdx,
   setSelectedMonthIdx,
   weeks,
   months,
 }: DateNavigationProps) {
   const navRef = useRef<HTMLDivElement>(null);
+  const { selectedWeekIdx, setSelectedWeekIdx } = useAppState();
 
   // Swipe support for mobile
   let touchStartX = 0;

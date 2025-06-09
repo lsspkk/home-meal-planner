@@ -1,32 +1,22 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 export function useWeekMenus() {
-  const [selectedWeek, setSelectedWeek] = useState<number>(0);
   const [selection, setSelection] = useState<Record<string, string[]>>({});
 
-  // Load from localStorage on initial mount
   useEffect(() => {
-    const savedWeek = localStorage.getItem("selectedWeek");
-    if (savedWeek) {
-      setSelectedWeek(Number(savedWeek));
-    }
     const savedMenus = localStorage.getItem("weeklyMenus");
     if (savedMenus) {
       setSelection(JSON.parse(savedMenus));
     }
   }, []);
 
-  // Save state to localStorage
-  const save = useCallback(() => {
-    localStorage.setItem("selectedWeek", String(selectedWeek));
+  const save = (selection: Record<string, string[]>) => {
     localStorage.setItem("weeklyMenus", JSON.stringify(selection));
-  }, [selectedWeek, selection]);
+    setSelection(selection);
+  };
 
   return {
-    selectedWeek,
-    setSelectedWeek,
     selection,
-    setSelection,
     save,
   };
 } 

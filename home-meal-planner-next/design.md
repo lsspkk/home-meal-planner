@@ -69,3 +69,35 @@ Tuo - To read kodin-ruokalista.json file and to add all recipes into recipe data
 Here's functionality that let's users edit old recipe ingredients, titles and links of existing recipes.
 
 There's also add recipe button. It opens a modal that has inputs for title, and link list, and ingredient list. On the ingredient list if user clicks enter or tab, next ingredient is selected.
+
+---
+
+## Application State Management Plan (React Context)
+
+To keep the application state (such as the currently selected week) consistent between pages and minimize unnecessary rerenders, the following plan will be implemented:
+
+- **React Context for App State:**
+  - Create a React context (e.g. `AppStateContext`) to hold global state such as the current week index (selected week), and any other shared state (e.g. selected month, view mode, etc.).
+  - The context provider will be placed at the top level of the app (e.g. in `layout.tsx` or a custom provider component).
+
+- **Current Week Index:**
+  - The context will include a `currentWeekIdx` (or `selectedWeekIdx`) value.
+  - The initial value will be calculated using the `getWeekNumber` utility from `utils.ts`, based on the current date.
+  - Example: `const initialWeek = getWeekNumber(new Date());`
+
+- **Usage in Pages:**
+  - All pages/components that need to read or update the current week will use the context (via a custom hook, e.g. `useAppState`).
+  - The `/market` page and the main home page will both use this context for the selected week.
+
+- **Updating Week Number:**
+  - The `DateNavigation` component will update the week number in the context state when the user navigates weeks/months.
+  - This ensures all parts of the app see the same selected week.
+
+- **Minimal Rerender Strategy:**
+  - The context will be split or memoized as needed to avoid rerendering the entire app when only the week number changes.
+  - For example, use `React.memo` or context selectors to only rerender components that depend on the week number.
+
+- **Persistence:**
+  - Optionally, the selected week can be persisted to localStorage and restored on reload for a seamless user experience.
+
+---

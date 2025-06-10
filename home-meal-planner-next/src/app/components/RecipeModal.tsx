@@ -1,5 +1,7 @@
 import { Recipe } from "../recipes";
 import { Button } from "./Button";
+import { Modal } from "./Modal";
+import React from "react";
 
 interface RecipeModalProps {
   recipe: Recipe | null;
@@ -8,14 +10,14 @@ interface RecipeModalProps {
 }
 
 export function RecipeModal({ recipe, open, onClose }: RecipeModalProps) {
-  if (!open || !recipe) return null;
+  if (!recipe) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative">
+    <Modal open={open} onClose={onClose}>
+      <div className="relative">
         <Button
           variant="ghost"
-          className="absolute top-2 right-2 text-gray-500 hover:text-black text-xl"
+          className="absolute -top-4 -right-4 text-gray-500 hover:text-black text-xl"
           onClick={onClose}
           aria-label="Sulje"
         >
@@ -48,6 +50,6 @@ export function RecipeModal({ recipe, open, onClose }: RecipeModalProps) {
           ))}
         </ul>
       </div>
-    </div>
+    </Modal>
   );
 } 

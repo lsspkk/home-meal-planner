@@ -1,22 +1,44 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-export function useWeekMenus() {
-  const [selection, setSelection] = useState<Record<string, string[]>>({});
+export function useWeeklyMenus() {
+  const [weeklyMenus, setWeeklyMenus] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     const savedMenus = localStorage.getItem("weeklyMenus");
     if (savedMenus) {
-      setSelection(JSON.parse(savedMenus));
+      setWeeklyMenus(JSON.parse(savedMenus));
     }
   }, []);
 
-  const save = (selection: Record<string, string[]>) => {
-    localStorage.setItem("weeklyMenus", JSON.stringify(selection));
-    setSelection(selection);
-  };
+  const save = useCallback((newWeeklyMenus: Record<string, string[]>) => {
+    localStorage.setItem("weeklyMenus", JSON.stringify(newWeeklyMenus));
+    setWeeklyMenus(newWeeklyMenus);
+  }, []);
+
+  const onAdd = useCallback((weekKey: string, recipeId: string) => {
+    const newSelection = { ...weeklyMenus };
+    if (!newSelection[weekKey]) {
+      newSelection[weekKey] = [];
+    }
+    // Avoid duplicates
+    if (!newSelection[weekKey].includes(recipeId)) {
+      newSelection[weekKey] = [...newSelection[weekKey], recipeId];
+      save(newSelection);
+    }
+  }, [weeklyMenus, save]);
+
+  const onRemove = useCallback((weekKey: string, recipeId: string) => {
+    const newSelection = { ...weeklyMenus };
+    if (newSelection[weekKey]) {
+      newSelection[weekKey] = newSelection[weekKey].filter(id => id !== recipeId);
+      save(newSelection);
+    }
+  }, [weeklyMenus, save]);
 
   return {
-    selection,
+    weeklyMenus,
     save,
+    onAdd,
+    onRemove,
   };
 } 

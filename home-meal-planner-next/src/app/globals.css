@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary-color: #3b82f6; /* blue-500 */
+  --secondary-color: #6b7280; /* gray-500 */
+}
+
 body {
   @apply text-gray-900 bg-gray-50;
 }
@@ -57,6 +62,31 @@ body {
     0 1px 4px rgba(0,0,0,0.1),
     0 0 2px #fff,
     0 0 1px #fff;
+}
+
+.modal-top-border {
+  height: 5px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.theme-pink .modal-top-border {
+  background: linear-gradient(90deg, #f472b6, #ec4899);
+}
+.theme-green .modal-top-border {
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+}
+.theme-sky .modal-top-border {
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+}
+.theme-rainbow .modal-top-border {
+  background: linear-gradient(90deg, #f87171 0%, #fbbf24 25%, #34d399 50%, #60a5fa 75%, #a78bfa 100%);
+}
+.theme-white .modal-top-border {
+  background: linear-gradient(90deg, #e5e7eb, #9ca3af);
+}
+.theme-dark .modal-top-border {
+  background: linear-gradient(90deg, #6b7280, #4b5563);
 }
 
 .theme-dark .button-theme-small,

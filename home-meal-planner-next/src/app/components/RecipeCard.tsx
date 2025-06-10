@@ -2,6 +2,7 @@ import { Recipe } from '../recipes'
 import { Button } from './Button'
 import { useEffect, useState } from 'react'
 import { ArrowUpOnSquareStackIcon, EyeIcon, TrashIcon } from '@heroicons/react/24/outline'
+import React from "react";
 
 interface RecipeCardProps {
   recipe: Recipe

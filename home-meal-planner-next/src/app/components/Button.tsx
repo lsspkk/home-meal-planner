@@ -1,6 +1,7 @@
 'use client'
 import { forwardRef, ButtonHTMLAttributes, ReactNode } from 'react'
 import { useTheme } from './ThemeProvider'
+import React from "react";
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost'
 

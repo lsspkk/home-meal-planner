@@ -1,5 +1,5 @@
 "use client";
-import { useWeekMenus } from "../hooks/useWeekMenus";
+import { useWeeklyMenus } from "../hooks/useWeekMenus";
 import { useRecipeCollection } from "../hooks/useRecipeCollection";
 import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
@@ -28,13 +28,13 @@ type IngredientRecipe = {
 
 export default function MarketPageContent() {
   const searchParams = useSearchParams();
-  const { selection } = useWeekMenus();
+  const { weeklyMenus } = useWeeklyMenus();
   const { recipeCollection } = useRecipeCollection();
   const { selectedWeekIdx } = useAppState();
   const weekNumber = Number(searchParams.get("week")) || selectedWeekIdx;
 
   // 1. Get all recipe IDs for the selected week
-  const recipeIds: string[] = selection[weekNumber] || [];
+  const recipeIds: string[] = weeklyMenus[weekNumber] || [];
 
   // 2. Build a map of recipeKey to recipeData
   const recipeMap: Record<string, { id: string; title: string; contents: string[] }> = {};

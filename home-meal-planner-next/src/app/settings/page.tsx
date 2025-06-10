@@ -4,6 +4,8 @@ import { Cog6ToothIcon, ArrowDownTrayIcon, PencilSquareIcon, SunIcon, MoonIcon, 
 import { Theme, useTheme } from "../components/ThemeProvider";
 import { useViewMode } from "../useViewMode";
 import { Button } from "../components/Button";
+import React from "react";
+
 
 function RainbowIcon({ className = "w-5 h-5" }) {
   return (

@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { ThemeProvider } from './components/ThemeProvider'
 import { Cog6ToothIcon, InformationCircleIcon } from '@heroicons/react/24/outline'
 import { AppStateProvider } from './AppStateContext'
+import React from "react";
 
 export const metadata = {
   title: 'Kodin ruokalista',

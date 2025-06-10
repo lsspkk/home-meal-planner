@@ -15,11 +15,24 @@ export function getWeekNumber(date: Date): number {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
+export function getWeekKey(date: Date): string {
+  const year = date.getFullYear();
+  const week = getWeekNumber(date);
+  return `${year}-week-${week}`;
+}
+
+export function parseWeekKey(key: string): { year: number, week: number } {
+  const match = key.match(/(\d+)-week-(\d+)/);
+  if (!match) throw new Error('Invalid week key');
+  return { year: Number(match[1]), week: Number(match[2]) };
+}
+
 export interface WeekRange {
   weekNumber: number;
   start: Date;
   end: Date;
   idx: number;
+  key: string;
 }
 
 export function getWeeksInRange(start: Date, end: Date): WeekRange[] {
@@ -35,7 +48,8 @@ export function getWeeksInRange(start: Date, end: Date): WeekRange[] {
       weekNumber: getWeekNumber(weekStart),
       start: new Date(weekStart),
       end: new Date(weekEnd),
-      idx: weekIdx++
+      idx: weekIdx++,
+      key: getWeekKey(weekStart),
     });
     current.setDate(current.getDate() + 7);
   }

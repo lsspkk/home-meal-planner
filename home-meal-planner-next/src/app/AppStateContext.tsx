@@ -1,6 +1,8 @@
 "use client";
 import { createContext, useContext, useState, useMemo } from "react";
 import { getWeekNumber } from "./utils";
+import React from "react";
+
 
 type AppState = {
   selectedWeekIdx: number;

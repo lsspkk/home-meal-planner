@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Recipe } from "../../recipes";
 import { Button } from "../../components/Button";
 import IngredientInput from "./IngredientInput";
+import { Modal } from "../../components/Modal";
+import React from "react";
 
 export default function RecipeEditModal({ open, recipe, onClose, onSave }: {
   open: boolean;
@@ -30,24 +32,22 @@ export default function RecipeEditModal({ open, recipe, onClose, onSave }: {
     });
   };
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex flex-col sm:items-center sm:justify-center z-50">
+    <Modal open={open} onClose={onClose}>
       <form
-        className="bg-white p-4 h-full w-full max-w-sm mx-auto rounded-none shadow overflow-y-auto flex flex-col justify-center sm:max-w-md sm:rounded sm:h-auto sm:w-full sm:p-6"
+        className="w-full"
         onSubmit={handleSubmit}
       >
         <h2 className="text-lg font-bold mb-2">{recipe ? "Muokkaa reseptiä" : "Lisää resepti"}</h2>
         <input
-          className="w-full border p-2 rounded"
+          className="w-full border p-2 rounded mb-2"
           placeholder="Nimi"
           value={title}
           onChange={e => setTitle(e.target.value)}
           required
         />
         <input
-          className="w-full border p-2 rounded"
+          className="w-full border p-2 rounded mb-2"
           placeholder="Linkit (pilkulla eroteltuna)"
           value={links}
           onChange={e => setLinks(e.target.value)}
@@ -58,6 +58,6 @@ export default function RecipeEditModal({ open, recipe, onClose, onSave }: {
           <Button type="submit" variant="primary">{recipe ? "Tallenna" : "Lisää"}</Button>
         </div>
       </form>
-    </div>
+    </Modal>
   );
 } 

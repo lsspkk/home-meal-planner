@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
-import { useWeekMenus } from "../../hooks/useWeekMenus";
+import { useWeeklyMenus } from "../../hooks/useWeekMenus";
 import { useRecipeCollection } from "../../hooks/useRecipeCollection";
 import { Button } from "../../components/Button";
 import {
@@ -12,6 +12,7 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Recipe } from "../../recipes";
+import React from "react";
 
 type Mode = "import" | "export" | null;
 
@@ -33,7 +34,7 @@ const compareContents = (a: string[], b: string[]) => {
 };
 
 export default function ImportExportPage() {
-  const { selection: weeklyMenus, save: saveMenus } = useWeekMenus();
+  const { weeklyMenus, save: saveMenus } = useWeeklyMenus();
   const { recipeCollection, save: saveRecipes } = useRecipeCollection();
   
   const [mode, setMode] = useState<Mode>(null);

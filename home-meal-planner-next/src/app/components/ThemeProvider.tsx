@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React from "react";
 
 export type Theme = "pink" | "green" | "sky" | "rainbow" | "white" | "dark";
 

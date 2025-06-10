@@ -1,19 +1,17 @@
 "use client";
 import { useState } from "react";
 import { useRecipeCollection } from "../../hooks/useRecipeCollection";
-import { recipes as staticRecipes, Recipe } from "../../recipes";
 import { Button } from "../../components/Button";
 import RecipeList from "./RecipeList";
 import RecipeEditModal from "./RecipeEditModal";
+import { Recipe } from "../../recipes";
 
 export default function ManagePage() {
-  const { recipeCollection, setRecipeCollection, save: saveRecipes } = useRecipeCollection();
+  const { recipeCollection, save: saveRecipes } = useRecipeCollection();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
-  const recipes: Recipe[] = Object.values(recipeCollection).length
-    ? Object.values(recipeCollection)
-    : staticRecipes;
+  const recipes: Recipe[] = Object.values(recipeCollection);
 
   const handleEdit = (recipe: Recipe) => {
     setEditingRecipe(recipe);
@@ -26,19 +24,16 @@ export default function ManagePage() {
   };
 
   const handleSave = (recipe: Recipe) => {
-    setRecipeCollection(prev => ({ ...prev, [recipe.id]: recipe }));
-    saveRecipes();
+    const newCollection = { ...recipeCollection, [recipe.id]: recipe };
+    saveRecipes(newCollection);
     setModalOpen(false);
   };
 
   const handleDelete = (id: string) => {
     if (window.confirm("Poista resepti?")) {
-      setRecipeCollection(prev => {
-        const newColl = { ...prev };
-        delete newColl[id];
-        return newColl;
-      });
-      saveRecipes();
+      const newCollection = { ...recipeCollection };
+      delete newCollection[id];
+      saveRecipes(newCollection);
     }
   };
 

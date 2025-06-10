@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Recipe, recipes as staticRecipes } from "../recipes";
 
 const arrayToRecord = (recipes: Recipe[]): Record<string, Recipe> => {
@@ -37,13 +37,13 @@ export function useRecipeCollection() {
     }
   }, []);
 
-  const save = useCallback(() => {
-    localStorage.setItem("recipeCollection", JSON.stringify(recipeCollection));
-  }, [recipeCollection]);
+  const save = (newRecipeCollection: Record<string, Recipe>) => {
+    localStorage.setItem("recipeCollection", JSON.stringify(newRecipeCollection));
+    setRecipeCollection(newRecipeCollection);
+  };
 
   return {
     recipeCollection,
-    setRecipeCollection,
     save,
   };
 } 

@@ -1,0 +1,534 @@
+openapi: 3.0.0
+info:
+  title: Home Meal Planner API
+  version: 1.0.0
+  description: >
+    An experimental Express.js backend API for the Home Meal Planner application.
+    This API provides user authentication, recipe management, and weekly menu planning functionality
+    with timestamp-based optimistic concurrency control to prevent data conflicts.
+  contact:
+    name: API Support
+  license:
+    name: ISC
+servers:
+  - url: http://localhost:23003
+    description: Development server
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic Authentication using username and password
+
+  schemas:
+    User:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: User's unique identifier
+      required:
+        - uuid
+
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique recipe identifier
+        title:
+          type: string
+          description: Recipe title
+        links:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Array of related links
+        contents:
+          type: array
+          items:
+            type: string
+          description: Recipe contents/steps
+        text:
+          type: string
+          description: Recipe text content
+      required:
+        - id
+        - title
+        - links
+        - contents
+        - text
+
+    RecipeCollection:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Recipe'
+      description: Maps recipe IDs to Recipe objects
+      example:
+        'recipe1':
+          id: 'recipe1'
+          title: 'Pasta Carbonara'
+          links: ['https://example.com/recipe1']
+          contents: ['Cook pasta', 'Mix eggs and cheese', 'Combine']
+          text: 'A classic Italian pasta dish'
+
+    TimestampedRecipeCollection:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RecipeCollection'
+        lastModified:
+          type: integer
+          format: int64
+          description: Unix timestamp (milliseconds) when data was last modified
+      required:
+        - data
+        - lastModified
+      example:
+        data:
+          'recipe1':
+            id: 'recipe1'
+            title: 'Pasta Carbonara'
+            links: ['https://example.com/recipe1']
+            contents: ['Cook pasta', 'Mix eggs and cheese', 'Combine']
+            text: 'A classic Italian pasta dish'
+        lastModified: 1735689600000
+
+    UpdateRecipeCollectionRequest:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RecipeCollection'
+        lastModified:
+          type: integer
+          format: int64
+          description: Unix timestamp from last GET request - used for optimistic concurrency control
+      required:
+        - data
+        - lastModified
+      example:
+        data:
+          'recipe1':
+            id: 'recipe1'
+            title: 'Updated Pasta Carbonara'
+            links: ['https://example.com/recipe1']
+            contents: ['Cook pasta', 'Mix eggs and cheese', 'Combine']
+            text: 'A classic Italian pasta dish with updates'
+        lastModified: 1735689600000
+
+    WeeklyMenus:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: string
+        description: Array of recipe IDs for this week
+      description: >
+        Maps week keys (e.g. '2024-week-1') to arrays of recipe IDs
+      example:
+        '2024-week-1': ['recipe1', 'recipe2']
+        '2024-week-2': ['recipe3', 'recipe4']
+
+    TimestampedWeeklyMenus:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/WeeklyMenus'
+        lastModified:
+          type: integer
+          format: int64
+          description: Unix timestamp (milliseconds) when data was last modified
+      required:
+        - data
+        - lastModified
+      example:
+        data:
+          '2024-week-1': ['recipe1', 'recipe2']
+          '2024-week-2': ['recipe3', 'recipe4']
+        lastModified: 1735689600000
+
+    UpdateWeeklyMenusRequest:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/WeeklyMenus'
+        lastModified:
+          type: integer
+          format: int64
+          description: Unix timestamp from last GET request - used for optimistic concurrency control
+      required:
+        - data
+        - lastModified
+      example:
+        data:
+          '2024-week-1': ['recipe1', 'recipe2', 'recipe3']
+          '2024-week-2': ['recipe4', 'recipe5']
+        lastModified: 1735689600000
+
+    ResetPasswordRequest:
+      type: object
+      properties:
+        newPassword:
+          type: string
+          maxLength: 64
+          description: The new password for the user
+      required:
+        - newPassword
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'OK'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - status
+        - timestamp
+
+    SuccessMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+
+    StaleDataError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 'Data has been modified by another client'
+        message:
+          type: string
+          example: 'Please reload the data before saving to avoid overwriting recent changes'
+        code:
+          type: string
+          enum: ['STALE_DATA']
+      required:
+        - error
+        - message
+        - code
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Authentication required'
+
+    Forbidden:
+      description: Access forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Conflict:
+      description: Data conflict - stale data detected
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StaleDataError'
+
+    PayloadTooLarge:
+      description: File size exceeds maximum limit
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'File size exceeds maximum limit of 2097152 bytes'
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Rate limit exceeded'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+security:
+  - basicAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the API
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /user:
+    get:
+      summary: Get current user information
+      description: Returns the UUID of the authenticated user
+      tags:
+        - User
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /user/{id}/resetpassword:
+    post:
+      summary: Reset user password
+      description: Allows an authenticated user to change their own password
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: User UUID (must match authenticated user)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+              example:
+                message: 'Password changed successfully'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Can only change own password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'You can only change your own password'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /recipes:
+    get:
+      summary: Get user recipes with timestamp
+      description: >
+        Returns all recipes for the authenticated user with timestamp for optimistic concurrency control.
+        The response includes both the recipe data and a lastModified timestamp that must be included
+        in subsequent POST requests to prevent data conflicts.
+      tags:
+        - Recipes
+      responses:
+        '200':
+          description: Recipes retrieved successfully with timestamp
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimestampedRecipeCollection'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Failed to load recipes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Failed to load recipes'
+
+    post:
+      summary: Save user recipes with timestamp validation
+      description: >
+        Saves recipes for the authenticated user with optimistic concurrency control.
+        The request must include both the recipe data and the lastModified timestamp
+        received from the last GET request. If another client has modified the data
+        since your last fetch, a 409 Conflict response will be returned.
+      tags:
+        - Recipes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRecipeCollectionRequest'
+            description: Recipe collection with timestamp for concurrency control
+      responses:
+        '200':
+          description: Recipes saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimestampedRecipeCollection'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Invalid request format'
+                message: 'Request must include data and lastModified fields'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Failed to save recipes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Failed to save recipes'
+
+  /weekmenus:
+    get:
+      summary: Get user weekly menus with timestamp
+      description: >
+        Returns all weekly menus for the authenticated user with timestamp for optimistic concurrency control.
+        The response includes both the menu data and a lastModified timestamp that must be included
+        in subsequent POST requests to prevent data conflicts.
+      tags:
+        - Weekly Menus
+      responses:
+        '200':
+          description: Weekly menus retrieved successfully with timestamp
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimestampedWeeklyMenus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Failed to load weekly menus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Failed to load weekly menus'
+
+    post:
+      summary: Save user weekly menus with timestamp validation
+      description: >
+        Saves weekly menus for the authenticated user with optimistic concurrency control.
+        The request must include both the menu data and the lastModified timestamp
+        received from the last GET request. If another client has modified the data
+        since your last fetch, a 409 Conflict response will be returned.
+      tags:
+        - Weekly Menus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWeeklyMenusRequest'
+            description: Weekly menus with timestamp for concurrency control
+      responses:
+        '200':
+          description: Weekly menus saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimestampedWeeklyMenus'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Invalid request format'
+                message: 'Request must include data and lastModified fields'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Failed to save weekly menus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Failed to save weekly menus'
+
+tags:
+  - name: Health
+    description: Health check operations
+  - name: User
+    description: User management operations
+  - name: Recipes
+    description: Recipe management operations with timestamp-based concurrency control
+  - name: Weekly Menus
+    description: Weekly menu planning operations with timestamp-based concurrency control

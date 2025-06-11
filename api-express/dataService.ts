@@ -1,7 +1,15 @@
 import fs from 'fs'
 import path from 'path'
 import bcrypt from 'bcrypt'
-import { User, Recipe, WeeklyMenus, RateLimit } from './types'
+import {
+  User,
+  Recipe,
+  WeeklyMenus,
+  RateLimit,
+  TimestampedRecipeCollection,
+  TimestampedWeeklyMenus,
+  RecipeCollection,
+} from './types'
 
 const DATA_DIR = process.env.DATA_DIR || './data'
 const USERS_FILE = path.join(DATA_DIR, 'users.json')
@@ -165,51 +173,103 @@ export function checkRateLimit(uuid: string): boolean {
   return true
 }
 
-// File operations for user data
-export function loadUserRecipes(uuid: string): Recipe[] {
+// File operations for user data with timestamp support
+export function loadUserRecipes(uuid: string): TimestampedRecipeCollection {
   try {
     const filePath = path.join(DATA_DIR, `${uuid}-recipes.json`)
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8')
       return JSON.parse(data)
     }
-    return []
+    return {
+      data: {},
+      lastModified: Date.now(),
+    }
   } catch (error) {
     console.error(`Error loading recipes for user ${uuid}:`, error)
-    return []
+    return {
+      data: {},
+      lastModified: Date.now(),
+    }
   }
 }
 
-export function saveUserRecipes(uuid: string, recipes: Recipe[]): void {
-  const data = JSON.stringify(recipes, null, 2)
-  if (Buffer.byteLength(data, 'utf8') > config.maxFileSize) {
+export function saveUserRecipes(
+  uuid: string,
+  recipeCollection: RecipeCollection,
+  expectedLastModified?: number
+): TimestampedRecipeCollection {
+  // Load current data to check timestamp
+  const currentData = loadUserRecipes(uuid)
+
+  // Check for stale data if expectedLastModified is provided
+  if (expectedLastModified !== undefined && currentData.lastModified > expectedLastModified) {
+    throw new Error('STALE_DATA')
+  }
+
+  const now = Date.now()
+  const timestampedData: TimestampedRecipeCollection = {
+    data: recipeCollection,
+    lastModified: now,
+  }
+
+  const jsonData = JSON.stringify(timestampedData, null, 2)
+  if (Buffer.byteLength(jsonData, 'utf8') > config.maxFileSize) {
     throw new Error(`File size exceeds maximum limit of ${config.maxFileSize} bytes`)
   }
 
   const filePath = path.join(DATA_DIR, `${uuid}-recipes.json`)
-  fs.writeFileSync(filePath, data)
+  fs.writeFileSync(filePath, jsonData)
+
+  return timestampedData
 }
 
-export function loadUserWeeklyMenus(uuid: string): WeeklyMenus {
+export function loadUserWeeklyMenus(uuid: string): TimestampedWeeklyMenus {
   try {
     const filePath = path.join(DATA_DIR, `${uuid}-weeklymenus.json`)
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8')
       return JSON.parse(data)
     }
-    return {}
+    return {
+      data: {},
+      lastModified: Date.now(),
+    }
   } catch (error) {
     console.error(`Error loading weekly menus for user ${uuid}:`, error)
-    return {}
+    return {
+      data: {},
+      lastModified: Date.now(),
+    }
   }
 }
 
-export function saveUserWeeklyMenus(uuid: string, weeklyMenus: WeeklyMenus): void {
-  const data = JSON.stringify(weeklyMenus, null, 2)
-  if (Buffer.byteLength(data, 'utf8') > config.maxFileSize) {
+export function saveUserWeeklyMenus(
+  uuid: string,
+  weeklyMenus: WeeklyMenus,
+  expectedLastModified?: number
+): TimestampedWeeklyMenus {
+  // Load current data to check timestamp
+  const currentData = loadUserWeeklyMenus(uuid)
+
+  // Check for stale data if expectedLastModified is provided
+  if (expectedLastModified !== undefined && currentData.lastModified > expectedLastModified) {
+    throw new Error('STALE_DATA')
+  }
+
+  const now = Date.now()
+  const timestampedData: TimestampedWeeklyMenus = {
+    data: weeklyMenus,
+    lastModified: now,
+  }
+
+  const jsonData = JSON.stringify(timestampedData, null, 2)
+  if (Buffer.byteLength(jsonData, 'utf8') > config.maxFileSize) {
     throw new Error(`File size exceeds maximum limit of ${config.maxFileSize} bytes`)
   }
 
   const filePath = path.join(DATA_DIR, `${uuid}-weeklymenus.json`)
-  fs.writeFileSync(filePath, data)
+  fs.writeFileSync(filePath, jsonData)
+
+  return timestampedData
 }

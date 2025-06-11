@@ -22,6 +22,41 @@ This backend provides user authentication and simple data storage for recipes an
 - `uuid-recipes.json`: Stores recipes for a user
 - `uuid-weeklymenus.json`: Stores weekly menus for a user
 
+## Data Consistency
+
+The backend implements a timestamp-based optimistic concurrency control mechanism to prevent data loss from concurrent modifications:
+
+### Timestamp Mechanism
+
+- Each data file (`uuid-recipes.json`, `uuid-weeklymenus.json`) includes a `lastModified` timestamp field
+- When data is retrieved via GET endpoints, the current timestamp is included in the response
+- When data is updated via POST endpoints, the client must include the `lastModified` timestamp from their last fetch
+
+### Conflict Detection
+
+- Before saving, the backend compares the incoming `lastModified` timestamp with the current file's timestamp
+- If the incoming timestamp is older than the file's current timestamp, it indicates another client has modified the data
+- In this case, the backend responds with a 409 Conflict status and JSON error message:
+
+  ```json
+  {
+    "error": "Data has been modified by another client",
+    "message": "Please reload the data before saving to avoid overwriting recent changes",
+    "code": "STALE_DATA"
+  }
+  ```
+
+### Update Process
+
+1. Client fetches data with GET request, receives data + `lastModified` timestamp
+2. Client modifies data locally
+3. Client sends POST request with modified data + original `lastModified` timestamp
+4. Backend validates timestamp and either:
+   - Saves data and updates `lastModified` to current time (success)
+   - Returns 409 error if timestamp indicates stale data (conflict)
+
+This ensures data integrity without complex locking mechanisms while providing clear feedback to clients about concurrent modifications.
+
 ## User Management
 
 - **Add User Script**: Adds a new user with a unique username and hashed password

@@ -1,6 +1,7 @@
 import express from 'express'
 import { basicAuth, rateLimitMiddleware, AuthenticatedRequest } from '../auth'
 import { loadUserWeeklyMenus, saveUserWeeklyMenus } from '../dataService'
+import { UpdateWeeklyMenusRequest, StaleDataError } from '../types'
 
 const router = express.Router()
 
@@ -11,8 +12,8 @@ router.get('/', basicAuth, rateLimitMiddleware, (req: AuthenticatedRequest, res)
       return res.status(401).json({ error: 'Authentication required' })
     }
 
-    const weeklyMenus = loadUserWeeklyMenus(req.user.uuid)
-    res.json(weeklyMenus)
+    const timestampedWeeklyMenus = loadUserWeeklyMenus(req.user.uuid)
+    res.json(timestampedWeeklyMenus)
   } catch (error) {
     res.status(500).json({ error: 'Failed to load weekly menus' })
   }
@@ -25,14 +26,33 @@ router.post('/', basicAuth, rateLimitMiddleware, (req: AuthenticatedRequest, res
       return res.status(401).json({ error: 'Authentication required' })
     }
 
-    const weeklyMenus = req.body
-    if (typeof weeklyMenus !== 'object' || weeklyMenus === null) {
-      return res.status(400).json({ error: 'Weekly menus must be an object' })
+    const requestData = req.body as UpdateWeeklyMenusRequest
+
+    // Validate request structure
+    if (
+      !requestData ||
+      typeof requestData !== 'object' ||
+      !requestData.data ||
+      typeof requestData.lastModified !== 'number'
+    ) {
+      return res.status(400).json({
+        error: 'Invalid request format',
+        message: 'Request must include data and lastModified fields',
+      })
     }
 
-    saveUserWeeklyMenus(req.user.uuid, weeklyMenus)
-    res.json({ message: 'Weekly menus saved successfully' })
+    const updatedData = saveUserWeeklyMenus(req.user.uuid, requestData.data, requestData.lastModified)
+    res.json(updatedData)
   } catch (error: any) {
+    if (error.message === 'STALE_DATA') {
+      const staleError: StaleDataError = {
+        error: 'Data has been modified by another client',
+        message: 'Please reload the data before saving to avoid overwriting recent changes',
+        code: 'STALE_DATA',
+      }
+      return res.status(409).json(staleError)
+    }
+
     if (error.message.includes('File size exceeds')) {
       res.status(413).json({ error: error.message })
     } else {

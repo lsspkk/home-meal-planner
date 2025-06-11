@@ -19,3 +19,44 @@ export type SelectedWeekIdx = number
 
 // View mode: 'week' or 'month'
 export type ViewMode = 'week' | 'month'
+
+// Backend API types for timestamped data
+export interface TimestampedRecipeCollection {
+  data: RecipeCollection
+  lastModified: number
+}
+
+export interface TimestampedWeeklyMenus {
+  data: WeeklyMenus
+  lastModified: number
+}
+
+export interface UpdateRecipeCollectionRequest {
+  data: RecipeCollection
+  lastModified: number
+}
+
+export interface UpdateWeeklyMenusRequest {
+  data: WeeklyMenus
+  lastModified: number
+}
+
+export interface User {
+  uuid: string
+}
+
+export interface StaleDataError {
+  error: string
+  message: string
+  code: 'STALE_DATA'
+}
+
+// Authentication state
+export type UserMode = 'visitor' | 'authenticated'
+
+export interface AuthState {
+  userMode: UserMode
+  userInfo: User | null
+  isLoading: boolean
+  lastSyncTime: number | null
+}

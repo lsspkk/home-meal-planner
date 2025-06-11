@@ -28,3 +28,7 @@ The API will be available at `http://localhost:23003`
 ## Status
 
 🚧 **Experimental** - This backend is currently in development and testing phase.
+
+## OpenAPI documentation
+
+View the complete API specification: [openapi.yaml](./openapi.yaml)

@@ -1,0 +1,404 @@
+openapi: 3.0.0
+info:
+  title: Home Meal Planner API
+  version: 1.0.0
+  description: >
+    An experimental Express.js backend API for the Home Meal Planner application.
+    This API provides user authentication, recipe management, and weekly menu planning functionality.
+  contact:
+    name: API Support
+  license:
+    name: ISC
+servers:
+  - url: http://localhost:23003
+    description: Development server
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic Authentication using username and password
+
+  schemas:
+    User:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: User's unique identifier
+      required:
+        - uuid
+
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique recipe identifier
+        title:
+          type: string
+          description: Recipe title
+        links:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Array of related links
+        contents:
+          type: array
+          items:
+            type: string
+          description: Recipe contents/steps
+        text:
+          type: string
+          description: Recipe text content
+      required:
+        - id
+        - title
+        - links
+        - contents
+        - text
+
+    WeeklyMenus:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: string
+        description: Array of recipe IDs for this week
+      description: >
+        Maps week keys (e.g. '2024-week-1') to arrays of recipe IDs
+      example:
+        '2024-week-1': ['recipe1', 'recipe2']
+        '2024-week-2': ['recipe3', 'recipe4']
+
+    ResetPasswordRequest:
+      type: object
+      properties:
+        newPassword:
+          type: string
+          maxLength: 64
+          description: The new password for the user
+      required:
+        - newPassword
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'OK'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - status
+        - timestamp
+
+    SuccessMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Authentication required'
+
+    Forbidden:
+      description: Access forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    PayloadTooLarge:
+      description: File size exceeds maximum limit
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'File size exceeds maximum limit of 2097152 bytes'
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Rate limit exceeded'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+security:
+  - basicAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the API
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /user:
+    get:
+      summary: Get current user information
+      description: Returns the UUID of the authenticated user
+      tags:
+        - User
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /user/{id}/resetpassword:
+    post:
+      summary: Reset user password
+      description: Allows an authenticated user to change their own password
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: User UUID (must match authenticated user)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+              example:
+                message: 'Password changed successfully'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Can only change own password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'You can only change your own password'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /recipes:
+    get:
+      summary: Get user recipes
+      description: Returns all recipes for the authenticated user (rate limited)
+      tags:
+        - Recipes
+      responses:
+        '200':
+          description: Recipes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Failed to load recipes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Failed to load recipes'
+
+    post:
+      summary: Save user recipes
+      description: Saves recipes for the authenticated user (rate limited, file size checked)
+      tags:
+        - Recipes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Recipe'
+            description: Array of recipes to save
+      responses:
+        '200':
+          description: Recipes saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+              example:
+                message: 'Recipes saved successfully'
+        '400':
+          description: Invalid request - recipes must be an array
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Recipes must be an array'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Failed to save recipes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Failed to save recipes'
+
+  /weekmenus:
+    get:
+      summary: Get user weekly menus
+      description: Returns all weekly menus for the authenticated user (rate limited)
+      tags:
+        - Weekly Menus
+      responses:
+        '200':
+          description: Weekly menus retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeeklyMenus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Failed to load weekly menus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Failed to load weekly menus'
+
+    post:
+      summary: Save user weekly menus
+      description: Saves weekly menus for the authenticated user (rate limited, file size checked)
+      tags:
+        - Weekly Menus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeeklyMenus'
+            description: Weekly menus object to save
+      responses:
+        '200':
+          description: Weekly menus saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+              example:
+                message: 'Weekly menus saved successfully'
+        '400':
+          description: Invalid request - weekly menus must be an object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Weekly menus must be an object'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          description: Failed to save weekly menus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Failed to save weekly menus'
+
+tags:
+  - name: Health
+    description: Health check operations
+  - name: User
+    description: User management operations
+  - name: Recipes
+    description: Recipe management operations
+  - name: Weekly Menus
+    description: Weekly menu planning operations

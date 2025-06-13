@@ -20,3 +20,7 @@
 
 ## 6. If Errors Remain
 - If errors persist after reasonable attempts, report them to the user and ask for guidance. 
+
+## 7. Use Heroicons in Buttons
+- When implementing or updating buttons, use a suitable Heroicon (from @heroicons/react) instead of text where appropriate (e.g., for actions like add, remove, view, edit, close, etc.).
+- Only use text if no suitable icon exists or if clarity would be lost by using an icon alone. 

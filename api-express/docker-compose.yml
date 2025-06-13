@@ -4,15 +4,9 @@ services:
   api:
     build: .
     ports:
-      - '23003:3000'
+      - '23000:3000'
     volumes:
       - ./data:/app/data
-    environment:
-      - NODE_ENV=production
-      - DATA_DIR=/app/data
-      - PORT=3000
-      - MAX_FILE_SIZE=10485760
-      - RATE_LIMIT_MINUTE=10
-      - RATE_LIMIT_HOUR=100
-      - RATE_LIMIT_DAY=1000
+    env_file:
+      - .env.production
     restart: unless-stopped

@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3001:3001'  # Map to port 3001 for development
+    volumes:
+      - ./data:/app/data
+      - .:/app  # Mount source code for hot-reloading
+      - /app/node_modules  # Preserve container node_modules
+    env_file:
+      - .env.development
+    command: npm run dev  # Use development command with hot-reloading

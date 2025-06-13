@@ -160,3 +160,10 @@ data/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+my_scripts/

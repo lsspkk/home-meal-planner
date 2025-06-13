@@ -181,16 +181,10 @@ export function loadUserRecipes(uuid: string): TimestampedRecipeCollection {
       const data = fs.readFileSync(filePath, 'utf8')
       return JSON.parse(data)
     }
-    return {
-      data: {},
-      lastModified: Date.now(),
-    }
+    return { data: {}, lastModified: 0 }
   } catch (error) {
     console.error(`Error loading recipes for user ${uuid}:`, error)
-    return {
-      data: {},
-      lastModified: Date.now(),
-    }
+    return { data: {}, lastModified: 0 }
   }
 }
 
@@ -231,16 +225,10 @@ export function loadUserWeeklyMenus(uuid: string): TimestampedWeeklyMenus {
       const data = fs.readFileSync(filePath, 'utf8')
       return JSON.parse(data)
     }
-    return {
-      data: {},
-      lastModified: Date.now(),
-    }
+    return { data: {}, lastModified: 0 }
   } catch (error) {
     console.error(`Error loading weekly menus for user ${uuid}:`, error)
-    return {
-      data: {},
-      lastModified: Date.now(),
-    }
+    return { data: {}, lastModified: 0 }
   }
 }
 

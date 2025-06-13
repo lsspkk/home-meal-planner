@@ -97,6 +97,75 @@ This ensures data integrity without complex locking mechanisms while providing c
 - Rate limits (per minute, hour, day)
 - Data directory path
 
+## CORS Configuration
+
+To securely allow cross-origin requests from your frontend (e.g., `foobar.vercel.app`) to your Dockerized backend (e.g., `foobar.example.com`), configure CORS (Cross-Origin Resource Sharing) in Express using environment variables. This ensures flexibility and keeps sensitive settings out of version control.
+
+### 1. Environment Variable for CORS
+
+- Create a `.env` file (or similar) in your project root (do **not** commit this file to git; add `.env` to `.gitignore`).
+- Add a variable for allowed origins, e.g.:
+
+  ```env
+  CORS_ORIGIN=https://foobar.vercel.app
+  ```
+  You can specify multiple origins as a comma-separated list if needed:
+  ```env
+  CORS_ORIGIN=https://foobar.vercel.app,https://another-frontend.com
+  ```
+
+### 2. Express CORS Setup
+
+- Use the [`cors`](https://www.npmjs.com/package/cors) middleware in your Express app.
+- Read the allowed origins from the environment variable and configure the middleware accordingly. Example:
+
+  ```js
+  // ... existing code ...
+  require('dotenv').config();
+  const cors = require('cors');
+
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+    : [];
+
+  app.use(cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  }));
+  // ... existing code ...
+  ```
+
+### 3. Passing Environment Variables to Docker
+
+- When running your backend in Docker, pass the `.env` file to the container:
+  - **Docker Compose**: Use the `env_file` option in your `docker-compose.yml`:
+    ```yaml
+    services:
+      backend:
+        image: your-backend-image
+        env_file:
+          - .env
+        # ... other config ...
+    ```
+  - **Docker CLI**: Use the `--env-file` flag:
+    ```sh
+    docker run --env-file .env your-backend-image
+    ```
+
+### 4. Security Notes
+
+- Never commit your `.env` file to version control.
+- Only allow trusted frontend origins.
+- Review CORS settings before deploying to production.
+
 ---
 
 This design ensures a simple, secure, and easily deployable backend for the Home Meal Planner app, with minimal dependencies and straightforward file-based storage.

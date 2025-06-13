@@ -36,6 +36,9 @@ describe('WeekCard', () => {
       save: vi.fn(),
       onAdd: vi.fn(),
       onRemove: vi.fn(),
+      refresh: vi.fn(),
+      isLoading: false,
+      lastModified: 0,
     });
     vi.spyOn(useRecipeCollectionModule, 'useRecipeCollection').mockReturnValue({
       recipeCollection: {

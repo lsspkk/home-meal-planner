@@ -1,9 +1,10 @@
 'use client'
 import { createContext, useContext, useState, useMemo, useCallback } from 'react'
 import { getWeekNumber } from './utils'
-import { AuthState, UserMode, User } from '../types'
+import { UserMode, User } from '../types'
 import { Toast } from './components/Toast'
 import React from 'react'
+import { BACKEND_URL } from './utils'
 
 interface ToastState {
   message: string
@@ -17,6 +18,8 @@ type AppState = {
   // Authentication state
   userMode: UserMode
   userInfo: User | null
+  username: string
+  password: string
   isLoading: boolean
   lastSyncTime: number | null
   // Authentication actions
@@ -38,11 +41,26 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   })
 
   // Authentication state
-  const [authState, setAuthState] = useState<AuthState>({
-    userMode: 'visitor',
-    userInfo: null,
-    isLoading: false,
-    lastSyncTime: null,
+  const [authState, setAuthState] = useState<{
+    userMode: UserMode
+    userInfo: User | null
+    username: string
+    password: string
+    isLoading: boolean
+    lastSyncTime: number | null
+  }>(() => {
+    let username = ''
+    if (typeof window !== 'undefined') {
+      username = localStorage.getItem('auth_username') || ''
+    }
+    return {
+      userMode: 'visitor',
+      userInfo: null,
+      username,
+      password: '',
+      isLoading: false,
+      lastSyncTime: null,
+    }
   })
 
   // Toast state
@@ -64,39 +82,33 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(
     async (username: string, password: string) => {
-      setAuthState((prev: AuthState) => ({ ...prev, isLoading: true }))
-
+      setAuthState((prev) => ({ ...prev, isLoading: true }))
       try {
-        // First, authenticate and get user info
         const credentials = btoa(`${username}:${password}`)
-        const userResponse = await fetch('http://localhost:23003/user', {
+        const userResponse = await fetch(BACKEND_URL + '/user', {
           headers: {
             Authorization: `Basic ${credentials}`,
           },
         })
-
         if (!userResponse.ok) {
           throw new Error('Virheelliset kirjautumistiedot')
         }
-
         const userInfo = await userResponse.json()
-
-        // Store credentials for future requests
+        // Store username for future logins, but NOT password
         if (typeof window !== 'undefined') {
-          localStorage.setItem('auth_credentials', credentials)
-          localStorage.setItem('auth_user', JSON.stringify(userInfo))
+          localStorage.setItem('auth_username', username)
         }
-
         setAuthState({
           userMode: 'authenticated',
           userInfo,
+          username,
+          password, // Only in memory
           isLoading: false,
           lastSyncTime: Date.now(),
         })
-
         showToast('Kirjautuminen onnistui!', 'success')
       } catch (error: unknown) {
-        setAuthState((prev: AuthState) => ({ ...prev, isLoading: false }))
+        setAuthState((prev) => ({ ...prev, isLoading: false, password: '' }))
         const message = error instanceof Error ? error.message : 'Kirjautuminen epäonnistui'
         showToast(message, 'error')
         throw error
@@ -107,41 +119,24 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_credentials')
-      localStorage.removeItem('auth_user')
+      // Do NOT clear username from localStorage
     }
-
     setAuthState({
       userMode: 'visitor',
       userInfo: null,
+      username: authState.username,
+      password: '',
       isLoading: false,
       lastSyncTime: null,
     })
-
     showToast('Kirjauduttu ulos', 'info')
-  }, [showToast])
+  }, [showToast, authState.username])
 
-  // Check for existing authentication on mount
+  // On mount, prefill username from localStorage if present
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      const credentials = localStorage.getItem('auth_credentials')
-      const userInfo = localStorage.getItem('auth_user')
-
-      if (credentials && userInfo) {
-        try {
-          const user = JSON.parse(userInfo)
-          setAuthState({
-            userMode: 'authenticated',
-            userInfo: user,
-            isLoading: false,
-            lastSyncTime: Date.now(),
-          })
-        } catch {
-          // Invalid stored data, clear it
-          localStorage.removeItem('auth_credentials')
-          localStorage.removeItem('auth_user')
-        }
-      }
+      const username = localStorage.getItem('auth_username') || ''
+      setAuthState((prev) => ({ ...prev, username }))
     }
   }, [])
 
@@ -151,6 +146,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       setSelectedWeekIdx,
       userMode: authState.userMode,
       userInfo: authState.userInfo,
+      username: authState.username,
+      password: authState.password,
       isLoading: authState.isLoading,
       lastSyncTime: authState.lastSyncTime,
       login,

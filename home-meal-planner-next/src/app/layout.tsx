@@ -5,6 +5,7 @@ import { ThemeProvider } from './components/ThemeProvider'
 import { Cog6ToothIcon, InformationCircleIcon } from '@heroicons/react/24/outline'
 import { AppStateProvider } from './AppStateContext'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import LoginModal from './components/LoginModal'
 import React from 'react'
 
 export const metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className='bg-gray-50 min-h-screen'>
         <AppStateProvider>
           <ThemeProvider>
+          <LoginModal />
             <ErrorBoundary>
               <nav className='flex items-center gap-4 px-4 py-2 bg-white shadow-sm border-b'>
                 <Link href='/' className='flex items-center gap-2 font-bold text-lg'>

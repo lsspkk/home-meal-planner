@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAppState } from '../AppStateContext'
 import { TimestampedWeeklyMenus, StaleDataError } from '@/types'
+import { BACKEND_URL } from '../utils'
+
 
 // API functions for backend operations
 const fetchWeekMenusFromBackend = async (credentials: string): Promise<TimestampedWeeklyMenus> => {
-  const response = await fetch('http://localhost:23003/weekmenus', {
+  const response = await fetch(BACKEND_URL + '/weekmenus', {
     headers: {
       Authorization: `Basic ${credentials}`,
     },
@@ -25,7 +27,7 @@ const saveWeekMenusToBackend = async (
   data: Record<string, string[]>,
   lastModified: number
 ): Promise<TimestampedWeeklyMenus> => {
-  const response = await fetch('http://localhost:23003/weekmenus', {
+  const response = await fetch(BACKEND_URL + '/weekmenus', {
     method: 'POST',
     headers: {
       Authorization: `Basic ${credentials}`,

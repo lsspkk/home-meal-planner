@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { useAppState } from '../AppStateContext'
+import { useToast } from '../ToastContext'
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -65,7 +65,7 @@ function ErrorBoundaryWrapper({
   children: React.ReactNode
   onSetToastRef: (showToast: (message: string, type: 'error' | 'success' | 'info' | 'warning') => void) => void
 }) {
-  const { showToast } = useAppState()
+  const { showToast } = useToast()
 
   React.useEffect(() => {
     onSetToastRef(showToast)
@@ -83,7 +83,7 @@ function ErrorBoundaryFallback({
   onReset: () => void
   onSetToastRef: (showToast: (message: string, type: 'error' | 'success' | 'info' | 'warning') => void) => void
 }) {
-  const { showToast } = useAppState()
+  const { showToast } = useToast()
 
   React.useEffect(() => {
     onSetToastRef(showToast)

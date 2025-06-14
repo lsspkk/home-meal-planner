@@ -77,9 +77,16 @@ export function findUserByUuid(uuid: string): User | undefined {
 // Verify password
 export async function verifyPassword(username: string, password: string): Promise<User | null> {
   const user = findUserByUsername(username)
-  if (!user) return null
+  if (!user) {
+    console.warn(`User not found: ${username}`)
+    return null
+  }
 
   const isValid = await bcrypt.compare(password, user.password)
+  if (!isValid) {
+    console.warn(`Invalid password for user: ${username}`)
+    return null
+  }
   return isValid ? user : null
 }
 

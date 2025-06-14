@@ -1,81 +1,26 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useAppState } from '../AppStateContext'
-import { TimestampedWeeklyMenus, StaleDataError } from '@/types'
-import { BACKEND_URL } from '../utils'
-
-
-// API functions for backend operations
-const fetchWeekMenusFromBackend = async (credentials: string): Promise<TimestampedWeeklyMenus> => {
-  const response = await fetch(BACKEND_URL + '/weekmenus', {
-    headers: {
-      Authorization: `Basic ${credentials}`,
-    },
-  })
-
-  if (!response.ok) {
-    if (response.status === 429) {
-      throw new Error('Liian monta pyyntöä - yritä hetken kuluttua')
-    }
-    throw new Error('Viikkomenuvien lataus epäonnistui')
-  }
-
-  return response.json()
-}
-
-const saveWeekMenusToBackend = async (
-  credentials: string,
-  data: Record<string, string[]>,
-  lastModified: number
-): Promise<TimestampedWeeklyMenus> => {
-  const response = await fetch(BACKEND_URL + '/weekmenus', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ data, lastModified }),
-  })
-
-  if (!response.ok) {
-    if (response.status === 409) {
-      const error: StaleDataError = await response.json()
-      throw new Error(`Tiedot on muutettu toisessa istunnossa. ${error.message}`)
-    }
-    if (response.status === 413) {
-      throw new Error('Tiedosto on liian suuri palvelimelle')
-    }
-    if (response.status === 429) {
-      throw new Error('Liian monta pyyntöä - yritä hetken kuluttua')
-    }
-    throw new Error('Viikkomenuvien tallennus epäonnistui')
-  }
-
-  return response.json()
-}
+import { fetchWeekMenusFromBackend, saveWeekMenusToBackend } from '../api'
+import { useAuth } from '../AuthContext'
+import { useToast } from '../ToastContext'
 
 export function useWeeklyMenus() {
-  const { userMode, showToast } = useAppState()
+  const { userMode } = useAuth()
+  const { showToast } = useToast()
   const [weeklyMenus, setWeeklyMenus] = useState<Record<string, string[]>>({})
   const [lastModified, setLastModified] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Load data on mount and when user mode changes
-  useEffect(() => {
-    loadData()
-  }, [userMode])
-
-  const loadFromBackend = async () => {
+  const loadFromBackend = useCallback(async () => {
     const credentials = localStorage.getItem('auth_credentials')
     if (!credentials) {
       throw new Error('Ei kirjautumistietoja')
     }
-
     const timestampedData = await fetchWeekMenusFromBackend(credentials)
     setWeeklyMenus(timestampedData.data)
     setLastModified(timestampedData.lastModified)
-  }
+  }, [])
 
-  const loadFromLocalStorage = () => {
+  const loadFromLocalStorage = useCallback(() => {
     const savedMenus = localStorage.getItem('weeklyMenus')
     if (savedMenus) {
       try {
@@ -87,11 +32,10 @@ export function useWeeklyMenus() {
       setWeeklyMenus({})
     }
     setLastModified(0) // No timestamp for localStorage
-  }
+  }, [])
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true)
-
     try {
       if (userMode === 'authenticated') {
         await loadFromBackend()
@@ -101,7 +45,6 @@ export function useWeeklyMenus() {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Viikkomenuvien lataus epäonnistui'
       showToast(message, 'error')
-
       // Fallback to localStorage on error
       if (userMode === 'authenticated') {
         const savedMenus = localStorage.getItem('weeklyMenus')
@@ -117,7 +60,12 @@ export function useWeeklyMenus() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [userMode, loadFromBackend, loadFromLocalStorage, showToast])
+
+  // Load data on mount and when user mode changes
+  useEffect(() => {
+    loadData()
+  }, [userMode, loadData])
 
   const saveToBackend = async (newWeeklyMenus: Record<string, string[]>) => {
     const credentials = localStorage.getItem('auth_credentials')
@@ -192,7 +140,7 @@ export function useWeeklyMenus() {
     if (userMode === 'authenticated') {
       await loadData()
     }
-  }, [userMode]) // loadData is not in deps since it's internal
+  }, [userMode, loadData])
 
   return {
     weeklyMenus,

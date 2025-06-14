@@ -109,7 +109,9 @@ To securely allow cross-origin requests from your frontend (e.g., `foobar.vercel
   ```env
   CORS_ORIGIN=https://foobar.vercel.app
   ```
+
   You can specify multiple origins as a comma-separated list if needed:
+
   ```env
   CORS_ORIGIN=https://foobar.vercel.app,https://another-frontend.com
   ```
@@ -121,25 +123,27 @@ To securely allow cross-origin requests from your frontend (e.g., `foobar.vercel
 
   ```js
   // ... existing code ...
-  require('dotenv').config();
-  const cors = require('cors');
+  require('dotenv').config()
+  const cors = require('cors')
 
   const allowedOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-    : [];
+    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+    : []
 
-  app.use(cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-  }));
+  app.use(
+    cors({
+      origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true)
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true)
+        } else {
+          return callback(new Error('Not allowed by CORS'))
+        }
+      },
+      credentials: true,
+    })
+  )
   // ... existing code ...
   ```
 
@@ -166,6 +170,14 @@ To securely allow cross-origin requests from your frontend (e.g., `foobar.vercel
 - Only allow trusted frontend origins.
 - Review CORS settings before deploying to production.
 
----
+## Authentication Header Encoding
+
+The frontend encodes the username and password for HTTP Basic Authentication as follows:
+
+- Each of the username and password is first URL-encoded (using `encodeURIComponent`).
+- Then, each is base64-encoded separately.
+- The resulting header is: `Authorization: Basic <base64(username)>:<base64(password)>`
+
+The backend must decode each part using base64 and then decodeURIComponent to recover the original credentials, including any UTF-8 characters.
 
 This design ensures a simple, secure, and easily deployable backend for the Home Meal Planner app, with minimal dependencies and straightforward file-based storage.

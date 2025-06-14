@@ -21,25 +21,32 @@ export async function basicAuth(req: AuthenticatedRequest, res: Response, next: 
 
   try {
     const base64Credentials = authHeader.split(' ')[1]
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii')
-    const [username, password] = credentials.split(':')
-
+    const [userB64, passB64] = base64Credentials.split(':')
+    if (!userB64 || !passB64) {
+      res.status(401).json({ error: 'Invalid credentials format' })
+      return
+    }
+    let username: string, password: string
+    try {
+      username = decodeURIComponent(Buffer.from(userB64, 'base64').toString('utf-8'))
+      password = decodeURIComponent(Buffer.from(passB64, 'base64').toString('utf-8'))
+    } catch (e) {
+      res.status(401).json({ error: 'Invalid credentials encoding' })
+      return
+    }
     if (!username || !password) {
       res.status(401).json({ error: 'Invalid credentials format' })
       return
     }
-
     const user = await verifyPassword(username, password)
     if (!user) {
       res.status(401).json({ error: 'Invalid credentials' })
       return
     }
-
     req.user = {
       uuid: user.uuid,
       username: user.username,
     }
-
     next()
   } catch (error) {
     res.status(401).json({ error: 'Authentication failed' })

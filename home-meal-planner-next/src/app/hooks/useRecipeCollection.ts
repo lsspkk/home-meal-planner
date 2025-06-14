@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Recipe, recipes as staticRecipes } from '../recipes'
-import { useAppState } from '../AppStateContext'
-import { TimestampedRecipeCollection, StaleDataError } from '@/types'
+import { fetchRecipesFromBackend, saveRecipesToBackend } from '../api'
+import { useAuth } from '../AuthContext'
+import { useToast } from '../ToastContext'
 
 const arrayToRecord = (recipes: Recipe[]): Record<string, Recipe> => {
   return recipes.reduce((acc, recipe) => {
@@ -10,78 +11,34 @@ const arrayToRecord = (recipes: Recipe[]): Record<string, Recipe> => {
   }, {} as Record<string, Recipe>)
 }
 
-// API functions for backend operations
-const fetchRecipesFromBackend = async (credentials: string): Promise<TimestampedRecipeCollection> => {
-  const response = await fetch('http://localhost:23003/recipes', {
-    headers: {
-      Authorization: `Basic ${credentials}`,
-    },
-  })
-
-  if (!response.ok) {
-    if (response.status === 429) {
-      throw new Error('Liian monta pyyntöä - yritä hetken kuluttua')
-    }
-    throw new Error('Reseptien lataus epäonnistui')
-  }
-
-  return response.json()
-}
-
-const saveRecipesToBackend = async (
-  credentials: string,
-  data: Record<string, Recipe>,
-  lastModified: number
-): Promise<TimestampedRecipeCollection> => {
-  const response = await fetch('http://localhost:23003/recipes', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ data, lastModified }),
-  })
-
-  if (!response.ok) {
-    if (response.status === 409) {
-      const error: StaleDataError = await response.json()
-      throw new Error(`Tiedot on muutettu toisessa istunnossa. ${error.message}`)
-    }
-    if (response.status === 413) {
-      throw new Error('Tiedosto on liian suuri palvelimelle')
-    }
-    if (response.status === 429) {
-      throw new Error('Liian monta pyyntöä - yritä hetken kuluttua')
-    }
-    throw new Error('Reseptien tallennus epäonnistui')
-  }
-
-  return response.json()
-}
-
 export function useRecipeCollection() {
-  const { userMode, showToast } = useAppState()
+  const { userMode } = useAuth()
+  const { showToast } = useToast()
   const [recipeCollection, setRecipeCollection] = useState<Record<string, Recipe>>({})
   const [lastModified, setLastModified] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Load data on mount and when user mode changes
-  useEffect(() => {
-    loadData()
-  }, [userMode])
-
-  const loadFromBackend = async () => {
+  const loadFromBackend = useCallback(async () => {
     const credentials = localStorage.getItem('auth_credentials')
     if (!credentials) {
       throw new Error('Ei kirjautumistietoja')
     }
 
     const timestampedData = await fetchRecipesFromBackend(credentials)
+    if (!timestampedData.data || Object.keys(timestampedData.data).length === 0) {
+      // Backend is empty, initialize with static recipes
+      const initial = arrayToRecord(staticRecipes)
+      const saved = await saveRecipesToBackend(credentials, initial, 0)
+      setRecipeCollection(saved.data)
+      setLastModified(saved.lastModified)
+      localStorage.setItem('recipeCollection', JSON.stringify(saved.data))
+      return
+    }
     setRecipeCollection(timestampedData.data)
     setLastModified(timestampedData.lastModified)
-  }
+  }, [])
 
-  const loadFromLocalStorage = () => {
+  const loadFromLocalStorage = useCallback(() => {
     const savedRecipes = localStorage.getItem('recipeCollection')
     let shouldInit = false
     let parsed: Record<string, Recipe> = {}
@@ -112,11 +69,10 @@ export function useRecipeCollection() {
       setRecipeCollection(parsed)
     }
     setLastModified(0) // No timestamp for localStorage
-  }
+  }, [])
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true)
-
     try {
       if (userMode === 'authenticated') {
         await loadFromBackend()
@@ -126,7 +82,6 @@ export function useRecipeCollection() {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Reseptien lataus epäonnistui'
       showToast(message, 'error')
-
       // Fallback to localStorage on error
       if (userMode === 'authenticated') {
         const savedRecipes = localStorage.getItem('recipeCollection')
@@ -143,7 +98,19 @@ export function useRecipeCollection() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [userMode, loadFromBackend, loadFromLocalStorage, showToast])
+
+  // Load data on mount and when user mode changes
+  useEffect(() => {
+    loadData()
+  }, [userMode, loadData])
+
+  // Only useCallback for refresh since it's used in useEffect dependency
+  const refresh = useCallback(async () => {
+    if (userMode === 'authenticated') {
+      await loadData()
+    }
+  }, [userMode, loadData])
 
   const saveToBackend = async (newRecipeCollection: Record<string, Recipe>) => {
     const credentials = localStorage.getItem('auth_credentials')
@@ -192,13 +159,6 @@ export function useRecipeCollection() {
       setIsLoading(false)
     }
   }
-
-  // Only useCallback for refresh since it's used in useEffect dependency
-  const refresh = useCallback(async () => {
-    if (userMode === 'authenticated') {
-      await loadData()
-    }
-  }, [userMode]) // loadData is not in deps since it's internal
 
   return {
     recipeCollection,

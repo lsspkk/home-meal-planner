@@ -1,7 +1,7 @@
 'use client'
 import { forwardRef, ButtonHTMLAttributes, ReactNode } from 'react'
 import { useTheme } from './ThemeProvider'
-import React from "react";
+import React from 'react'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost'
 
@@ -16,7 +16,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const themeStyles: Record<string, Record<ButtonVariant, string>> = {
   white: {
     primary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-300',
-    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-300',
+    secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200',
     outline: 'bg-white text-gray-900 border border-gray-300 hover:bg-gray-100',
     ghost: 'bg-transparent text-gray-900 hover:bg-gray-100 border border-transparent',
   },

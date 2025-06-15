@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       <Cog6ToothIcon className='w-7 h-7 text-gray-600' />
                     </Link>
                   </nav>
-                  <main className='max-w-2xl mx-auto py-4 sm:p-4 w-full'>{children}</main>
+                  <main className='max-w-2xl mx-auto py-0 sm:p-4 w-full'>{children}</main>
                 </ErrorBoundary>
               </ThemeProvider>
             </AppStateProvider>

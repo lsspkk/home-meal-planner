@@ -33,21 +33,22 @@ export default function MarketPageContent() {
   const { selectedWeekIdx } = useAppState()
   const weekParam = searchParams.get('week')
   const today = new Date()
-  let weekKey = ''
+  let weekNumber = 0
   if (weekParam) {
-    // If weekParam is a string like "2025-week-24", use as is; if number, build key for current year
+    // If weekParam is a string like "2025-week-24", extract week number; if number, use as is
     if (/^\d{4}-week-\d+$/.test(weekParam)) {
-      weekKey = weekParam
+      weekNumber = Number(weekParam.split('-')[2])
     } else {
-      // Assume weekParam is a week number
-      const year = today.getFullYear()
-      weekKey = `${year}-week-${Number(weekParam)}`
+      weekNumber = Number(weekParam)
     }
   } else {
-    // Use selectedWeekIdx as week number for current year
-    const year = today.getFullYear()
-    weekKey = `${year}-week-${selectedWeekIdx}`
+    // Use selectedWeekIdx as week number
+    weekNumber = selectedWeekIdx
   }
+
+  // Convert week number to weekKey for data lookup
+  const year = today.getFullYear()
+  const weekKey = `${year}-week-${weekNumber}`
 
   // 1. Get all recipe IDs for the selected week
   const recipeIds: string[] = weeklyMenus[weekKey] || []
@@ -150,7 +151,7 @@ export default function MarketPageContent() {
 
   return (
     <div className='space-y-6'>
-      <p className='text-gray-600 mb-4'>Viikon {weekKey} ainekset yhdellä listalla.</p>
+      <p className='text-gray-600 mb-4'>Viikon {weekNumber} ainekset yhdellä listalla.</p>
       <div className='overflow-x-auto'>
         <table className='w-full border-collapse'>
           <thead>

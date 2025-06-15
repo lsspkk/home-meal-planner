@@ -146,7 +146,7 @@ function ChangePasswordModal({ open, onClose }: { open: boolean; onClose: () => 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
   const { viewMode, save } = useViewMode()
-  const { userMode } = useAuth()
+  const { userMode, showLogin } = useAuth()
   const [showChangePw, setShowChangePw] = useState(false)
 
   return (
@@ -155,7 +155,13 @@ export default function SettingsPage() {
         <Cog6ToothIcon className='w-7 h-7 text-gray-500' />
         Asetukset
       </h1>
-      {userMode === 'authenticated' && (
+      {userMode === 'visitor' ? (
+        <div className='mb-4'>
+          <Button variant='primary' onClick={showLogin}>
+            Kirjaudu sisään
+          </Button>
+        </div>
+      ) : userMode === 'authenticated' && (
         <div className='mb-4'>
           <Button variant='primary' onClick={() => setShowChangePw(true)}>
             Vaihda salasana

@@ -42,8 +42,8 @@ export default function LoginModal() {
     }
   }
 
-  // If the user is authenticated (i.e. userMode is not "visitor" and userInfo (uuid) is present), do not render the modal.
-  if (userMode !== 'visitor' && userInfo) return null
+  // Show the modal only when userMode is null (not visitor or authenticated)
+  if (userMode !== null) return null
 
   return (
     <Modal open={true} onClose={() => {}}>

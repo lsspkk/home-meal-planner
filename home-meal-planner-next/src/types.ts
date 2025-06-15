@@ -52,7 +52,7 @@ export interface StaleDataError {
 }
 
 // Authentication state
-export type UserMode = 'visitor' | 'authenticated'
+export type UserMode = 'visitor' | 'authenticated' | null
 
 export interface AuthState {
   userMode: UserMode

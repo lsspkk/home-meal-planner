@@ -8,9 +8,9 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Card({ children, className, padding = 'default', ...props }: CardProps) {
   const paddingClasses = {
-    default: 'p-4',
-    none: 'p-0',
-    tight: 'p-2',
+    default: 'p-2 sm:p-4 md:p-8',
+    none: 'p-0 sm:p-1 md:p-2',
+    tight: 'p-1 sm:p-2 md:p-4',
   };
 
   const baseStyles = 'border-t border-b md:border sm:rounded-lg sm:shadow-sm';

@@ -47,7 +47,7 @@ export default function WeeklyView({ weeks }: WeeklyViewProps) {
     weeks[currentWeekIdx].idx === weeks[weeks.length - 1].idx
 
   return (
-    <div className='flex flex-col gap-6 pb-20'>
+    <div className='flex flex-col gap-6 pb-20 justify-start'>
       <WeekCard key={currentWeek.key} week={currentWeek} />
       <DateNavContainer>
         <Button onClick={handlePrevWeek} disabled={isFirstWeek} variant='secondary' className='py-3'>

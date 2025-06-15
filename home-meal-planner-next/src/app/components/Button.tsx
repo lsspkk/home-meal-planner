@@ -73,7 +73,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={`rounded font-semibold transition text-sm sm:text-base shadow ${themeClass} ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
-        }${rounded ? 'rounded-full p-0 sm:rounded scale-125 w-9 h-9 pt-1 mx-2' : 'px-3 py-1'} ${className}`}
+        }${rounded ? 'rounded-full p-0 sm:rounded scale-110 w-9 h-9 pt-1 mx-2' : 'px-3 py-1'} ${className}`}
         disabled={disabled}
         {...props}
       >

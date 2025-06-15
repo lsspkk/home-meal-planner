@@ -25,7 +25,10 @@ export function RecipeCard({ recipe, selected, onAdd, onRemove, onView }: Recipe
 
   return (
     <div
-      className={`flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-b sm:border rounded py-2 sm:p-2 mb-2 bg-white shadow-sm w-full max-w-full ${
+      className={`flex flex-col sm:flex-row items-start sm:items-center 
+        justify-between border-t border-b sm:border rounded 
+        p-1 sm:p-2 lg:p-4sm:mb-2 
+        bg-white shadow-sm w-full max-w-full ${
         selected ? 'border-blue-500' : 'border-gray-200'
       }`}
     >

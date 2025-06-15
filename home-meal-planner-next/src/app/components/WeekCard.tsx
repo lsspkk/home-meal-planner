@@ -71,7 +71,7 @@ export function WeekCard({
           <div className='font-medium mb-1'>Valitut reseptit:</div>
         </div>
         <div className='mb-2'>
-          <div className='flex flex-col gap-2'>
+          <div className='flex flex-col gap-1 md:gap-4'>
             {(selected[week.key] || []).map((id: string) => {
               const recipe = recipes.find((r) => r.id === id)
               return recipe ? (

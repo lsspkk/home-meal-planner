@@ -13,6 +13,7 @@ interface AuthContextType {
   lastSyncTime: number | null
   login: (username: string, password: string) => Promise<void>
   logout: () => void
+  showLogin: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -26,19 +27,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: boolean
     lastSyncTime: number | null
   }>(() => {
-    let username = ''
     if (typeof window !== 'undefined') {
-      username = localStorage.getItem('auth_username') || ''
+      localStorage.removeItem('auth_credentials')
+      localStorage.removeItem('auth_username')
     }
     return {
-      userMode: 'visitor',
+      userMode: null,
       userInfo: null,
-      username,
+      username: '',
       password: '',
       isLoading: false,
       lastSyncTime: null,
     }
   })
+
+  const showLogin = useCallback(() => {
+    setAuthState(prev => ({
+      ...prev,
+      userMode: null,
+      userInfo: null,
+      password: ''
+    }))
+  }, [])
 
   const login = useCallback(async (username: string, password: string) => {
     setAuthState((prev) => ({ ...prev, isLoading: true }))
@@ -73,13 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }))
   }, [])
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const username = localStorage.getItem('auth_username') || ''
-      setAuthState((prev) => ({ ...prev, username }))
-    }
-  }, [])
-
   const value = useMemo(
     () => ({
       userMode: authState.userMode,
@@ -90,8 +93,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       lastSyncTime: authState.lastSyncTime,
       login,
       logout,
+      showLogin,
     }),
-    [authState, login, logout]
+    [authState, login, logout, showLogin]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

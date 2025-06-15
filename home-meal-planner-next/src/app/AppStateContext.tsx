@@ -1,6 +1,5 @@
 'use client'
 import { createContext, useContext, useState, useMemo } from 'react'
-import { getWeekNumber } from './utils'
 import React from 'react'
 
 type AppState = {
@@ -16,7 +15,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       const v = localStorage.getItem('selectedWeekIdx')
       if (v) return Number(v)
     }
-    return getWeekNumber(new Date())
+    return 0  // Always start with current week (first week in the range)
   })
 
   const setSelectedWeekIdx = (idx: number) => {

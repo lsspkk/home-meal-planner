@@ -47,21 +47,39 @@ export default function WeeklyView({ weeks }: WeeklyViewProps) {
     weeks[currentWeekIdx].idx === weeks[weeks.length - 1].idx
 
   return (
-    <div className='flex flex-col gap-6 pb-20 justify-start'>
+    <div className='flex flex-col gap-6 md:gap-8 pb-20 md:pb-0 justify-start'>
       <WeekCard key={currentWeek.key} week={currentWeek} />
       <DateNavContainer>
-        <Button onClick={handlePrevWeek} disabled={isFirstWeek} variant='secondary' className='py-3'>
-          <ArrowLeftIcon className='w-4 h-4' />
-        </Button>
-        <div className='text-center font-semibold'>
-          Viikko {currentWeek.weekNumber}
-          <div className='text-sm text-gray-500'>
-            ({formatDate(currentWeek.start)} - {formatDate(currentWeek.end)})
+        {/* Mobile Navigation */}
+        <div className='flex md:hidden items-center justify-between w-full'>
+          <Button onClick={handlePrevWeek} disabled={isFirstWeek} variant='secondary' size='lg'>
+            <ArrowLeftIcon className='w-4 h-4' />
+          </Button>
+          <div className='flex items-center justify-center gap-2'>
+            <div className='w-1 h-1 rounded-full bg-gray-300 opacity-60'></div>
+            <div className='text-base font-semibold'>Viikko {currentWeek.weekNumber}</div>
+            <div className='w-1 h-1 rounded-full bg-gray-300 opacity-60'></div>
           </div>
+          <Button onClick={handleNextWeek} disabled={isLastWeek} variant='secondary' size='lg'>
+            <ArrowRightIcon className='w-4 h-4' />
+          </Button>
         </div>
-        <Button onClick={handleNextWeek} disabled={isLastWeek} variant='secondary' className='py-3'>
-          <ArrowRightIcon className='w-4 h-4' />
-        </Button>
+        
+        {/* Desktop Navigation */}
+        <div className='hidden md:flex items-center justify-between w-full'>
+          <Button onClick={handlePrevWeek} disabled={isFirstWeek} variant='secondary' size='lg'>
+            <ArrowLeftIcon className='w-4 h-4' />
+          </Button>
+          <div className='text-center font-semibold'>
+            <div className='text-base md:text-lg'>Viikko {currentWeek.weekNumber}</div>
+            <div className='text-sm text-gray-500'>
+              ({formatDate(currentWeek.start)} - {formatDate(currentWeek.end)})
+            </div>
+          </div>
+          <Button onClick={handleNextWeek} disabled={isLastWeek} variant='secondary' size='lg'>
+            <ArrowRightIcon className='w-4 h-4' />
+          </Button>
+        </div>
       </DateNavContainer>
     </div>
   )

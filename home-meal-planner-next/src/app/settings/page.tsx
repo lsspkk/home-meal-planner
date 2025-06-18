@@ -11,6 +11,7 @@ import {
   SparklesIcon,
   HeartIcon,
   CloudIcon,
+  KeyIcon,
 } from '@heroicons/react/24/outline'
 import { Theme, useTheme } from '../components/ThemeProvider'
 import { useViewMode } from '../useViewMode'
@@ -99,43 +100,45 @@ function ChangePasswordModal({ open, onClose }: { open: boolean; onClose: () => 
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm'>
-      <div className='bg-white rounded-lg shadow-xl w-full max-w-xs mx-4 p-6' onClick={(e) => e.stopPropagation()}>
-        <h2 className='text-xl font-bold mb-2'>Vaihda salasana</h2>
-        <form onSubmit={handleSubmit} className='space-y-4'>
-          <div>
-            <label htmlFor='oldPassword' className='block mb-1 font-medium'>
-              Nykyinen salasana
-            </label>
-            <input
-              id='oldPassword'
-              type='password'
-              className='w-full border p-2 rounded'
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-              autoComplete='current-password'
-              required
-            />
+      <div className='bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-4 md:p-6' onClick={(e) => e.stopPropagation()}>
+        <h2 className='text-xl md:text-2xl font-bold mb-4 md:mb-6'>Vaihda salasana</h2>
+        <form onSubmit={handleSubmit} className='space-y-4 md:space-y-6'>
+          <div className='space-y-2 md:space-y-3'>
+            <div>
+              <label htmlFor='oldPassword' className='block mb-1 md:mb-2 font-medium text-sm md:text-base'>
+                Nykyinen salasana
+              </label>
+              <input
+                id='oldPassword'
+                type='password'
+                className='w-full border p-3 md:p-4 rounded-lg text-sm md:text-base'
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                autoComplete='current-password'
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor='newPassword' className='block mb-1 md:mb-2 font-medium text-sm md:text-base'>
+                Uusi salasana
+              </label>
+              <input
+                id='newPassword'
+                type='password'
+                className='w-full border p-3 md:p-4 rounded-lg text-sm md:text-base'
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoComplete='new-password'
+                required
+              />
+            </div>
           </div>
-          <div>
-            <label htmlFor='newPassword' className='block mb-1 font-medium'>
-              Uusi salasana
-            </label>
-            <input
-              id='newPassword'
-              type='password'
-              className='w-full border p-2 rounded'
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              autoComplete='new-password'
-              required
-            />
-          </div>
-          {error && <div className='text-red-600 text-sm'>{error}</div>}
-          <Button type='submit' variant='primary' disabled={isLoading} className='w-full'>
+          {error && <div className='text-red-600 text-sm md:text-base'>{error}</div>}
+          <Button type='submit' variant='primary' disabled={isLoading} size='lg' className='w-full'>
             {isLoading ? 'Vaihdetaan...' : 'Vaihda salasana'}
           </Button>
         </form>
-        <Button type='button' variant='secondary' onClick={onClose} className='w-full mt-2'>
+        <Button type='button' variant='secondary' onClick={onClose} size='lg' className='w-full mt-3 md:mt-4'>
           Peruuta
         </Button>
       </div>
@@ -150,83 +153,107 @@ export default function SettingsPage() {
   const [showChangePw, setShowChangePw] = useState(false)
 
   return (
-    <div className='space-y-8 max-w-xl mx-auto'>
-      <h1 className='text-2xl font-bold mb-2 flex items-center gap-2'>
-        <Cog6ToothIcon className='w-7 h-7 text-gray-500' />
-        Asetukset
-      </h1>
-      {userMode === 'visitor' ? (
-        <div className='mb-4'>
-          <Button variant='primary' onClick={showLogin}>
-            Kirjaudu sisään
-          </Button>
-        </div>
-      ) : userMode === 'authenticated' && (
-        <div className='mb-4'>
-          <Button variant='primary' onClick={() => setShowChangePw(true)}>
-            Vaihda salasana
-          </Button>
-          <ChangePasswordModal open={showChangePw} onClose={() => setShowChangePw(false)} />
-        </div>
-      )}
-      <div className='flex flex-col gap-4'>
-        <Link
-          href='/settings/import-export'
-          className='flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition w-fit'
-        >
-          <ArrowDownTrayIcon className='w-5 h-5' />
-          Tuo/Vie tiedot
-        </Link>
-        <Link
-          href='/settings/manage'
-          className='flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition w-fit'
-        >
-          <PencilSquareIcon className='w-5 h-5' />
-          Muokkaa reseptejä
-        </Link>
-      </div>
-      <div>
-        <h2 className='font-semibold mb-2'>Teema</h2>
-        <div className='flex gap-4 flex-wrap'>
-          {themes.map(({ name, value, icon: Icon, color }) => (
-            <Button
-              key={value}
-              variant={theme === value ? 'primary' : 'outline'}
-              className={`theme-button flex items-center gap-2 ${theme === value ? 'ring-2 ring-blue-300' : ''}`}
-              onClick={() => setTheme(value as Theme)}
-              type='button'
-            >
-              <Icon className={`w-5 h-5 ${color}`} />
-              {name}
+    <div className='px-4 md:px-6 py-4 md:py-6'>
+      <div className='max-w-xl mx-auto space-y-6 md:space-y-8'>
+        <h1 className='text-2xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-3 md:gap-4'>
+          <Cog6ToothIcon className='w-7 h-7 md:w-8 md:h-8 text-gray-500' />
+          Asetukset
+        </h1>
+        
+        {/* Login/Password Section */}
+        {userMode === 'visitor' ? (
+          <div className='space-y-4'>
+            <h2 className='font-semibold text-lg md:text-xl'>Kirjautuminen</h2>
+            <Button variant='primary' onClick={showLogin} size='lg' className='w-full md:w-auto'>
+              Kirjaudu sisään
             </Button>
-          ))}
+          </div>
+        ) : userMode === 'authenticated' && (
+          <div className='space-y-4'>
+            <h2 className='font-semibold text-lg md:text-xl'>Tili</h2>
+            <Button 
+              variant='primary' 
+              onClick={() => setShowChangePw(true)} 
+              size='lg' 
+              className='w-full md:w-auto'
+              icon={<KeyIcon className='w-5 h-5' />}
+            >
+              Vaihda salasana
+            </Button>
+            <ChangePasswordModal open={showChangePw} onClose={() => setShowChangePw(false)} />
+          </div>
+        )}
+        
+        {/* Action Buttons */}
+        <div className='space-y-4'>
+          <h2 className='font-semibold text-lg md:text-xl'>Toiminnot</h2>
+          <div className='flex flex-col md:flex-row gap-4 md:gap-6'>
+            <Link
+              href='/settings/import-export'
+              className='flex items-center justify-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-full md:w-auto text-sm md:text-base font-medium'
+            >
+              <ArrowDownTrayIcon className='w-5 h-5 md:w-6 md:h-6' />
+              Tuo/Vie tiedot
+            </Link>
+            <Link
+              href='/settings/manage'
+              className='flex items-center justify-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors w-full md:w-auto text-sm md:text-base font-medium'
+            >
+              <PencilSquareIcon className='w-5 h-5 md:w-6 md:h-6' />
+              Muokkaa reseptejä
+            </Link>
+          </div>
         </div>
-      </div>
-      <div>
-        <h2 className='font-semibold mb-2'>Etusivun näkymä</h2>
-        <div className='flex gap-4'>
-          <Button
-            variant={viewMode === 'week' ? 'primary' : 'outline'}
-            className='flex items-center gap-2'
-            onClick={() => {
-              save('week')
-            }}
-            type='button'
-          >
-            <CalendarDaysIcon className='w-5 h-5' />
-            Viikko
-          </Button>
-          <Button
-            variant={viewMode === 'month' ? 'primary' : 'outline'}
-            className='flex items-center gap-2'
-            onClick={() => {
-              save('month')
-            }}
-            type='button'
-          >
-            <CalendarIcon className='w-5 h-5' />
-            Koko kuukausi
-          </Button>
+        
+        {/* Theme Section */}
+        <div className='space-y-4'>
+          <h2 className='font-semibold text-lg md:text-xl'>Teema</h2>
+          <div className='grid grid-cols-3 gap-3 md:gap-4'>
+            {themes.map(({ name, value, icon: Icon, color }) => (
+              <Button
+                key={value}
+                variant={theme === value ? 'primary' : 'outline'}
+                className={`theme-button flex items-center gap-2 ${theme === value ? 'ring-2 ring-blue-300' : ''}`}
+                onClick={() => setTheme(value as Theme)}
+                type='button'
+                size='md'
+              >
+                <Icon className={`w-5 h-5 ${color}`} />
+                {name}
+              </Button>
+            ))}
+          </div>
+        </div>
+        
+        {/* View Mode Section */}
+        <div className='space-y-4'>
+          <h2 className='font-semibold text-lg md:text-xl'>Etusivun näkymä</h2>
+          <div className='flex gap-3 md:gap-4'>
+            <Button
+              variant={viewMode === 'week' ? 'primary' : 'outline'}
+              className='flex items-center gap-2 w-1/2 md:w-1/4'
+              onClick={() => {
+                save('week')
+              }}
+              type='button'
+              size='md'
+            >
+              <CalendarDaysIcon className='w-5 h-5' />
+              Viikko
+            </Button>
+            <Button
+              variant={viewMode === 'month' ? 'primary' : 'outline'}
+              className='flex items-center gap-2 w-1/2 md:w-1/4'
+              onClick={() => {
+                save('month')
+              }}
+              type='button'
+              size='md'
+            >
+              <CalendarIcon className='w-5 h-5' />
+              Koko kuukausi
+            </Button>
+          </div>
         </div>
       </div>
     </div>

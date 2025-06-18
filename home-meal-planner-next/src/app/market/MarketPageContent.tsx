@@ -150,21 +150,21 @@ export default function MarketPageContent() {
   ]
 
   return (
-    <div className='space-y-6'>
-      <p className='text-gray-600 mb-4'>Viikon {weekNumber} ainekset yhdellä listalla.</p>
+    <div className=''>
+      <p className='text-gray-600 text-sm md:text-lg text-center px-4 md:px-0 md:my-3 lg:my-5'>Viikon {weekNumber} ainekset yhdellä listalla.</p>
       <div className='overflow-x-auto'>
         <table className='w-full border-collapse'>
           <thead>
             <tr>
-              <th className='text-xs text-gray-400 font-normal px-2 py-1 text-left'>#</th>
+              <th className='text-xs md:text-sm text-gray-400 font-normal px-2 md:px-3 py-2 md:py-3 text-left'>#</th>
               <th
-                className='text-xs text-gray-700 font-semibold px-2 py-1 text-left cursor-pointer select-none'
+                className='text-xs md:text-sm text-gray-700 font-semibold px-2 md:px-3 py-2 md:py-3 text-left cursor-pointer select-none'
                 onClick={(e) => handleHeaderClick('ingredient', e)}
               >
                 Ainesosa {getSortIcon('ingredient')}
               </th>
               <th
-                className='text-xs text-gray-700 font-semibold px-2 py-1 text-left cursor-pointer select-none min-w-[120px] whitespace-nowrap'
+                className='text-xs md:text-sm text-gray-700 font-semibold px-2 md:px-3 py-2 md:py-3 text-left cursor-pointer select-none min-w-[120px] md:min-w-[140px] whitespace-nowrap'
                 onClick={(e) => handleHeaderClick('recipe', e)}
               >
                 Resepti {getSortIcon('recipe')}
@@ -174,14 +174,14 @@ export default function MarketPageContent() {
           <tbody>
             {sortedIngredientRecipes.length === 0 ? (
               <tr>
-                <td className='text-gray-500'>Ei valittuja reseptejä.</td>
+                <td className='text-gray-500 text-sm md:text-base px-2 md:px-3 py-2 md:py-3'>Ei valittuja reseptejä.</td>
               </tr>
             ) : (
               sortedIngredientRecipes.map((ir, i) => (
                 <tr key={i} className={`${pastelColors[i % pastelColors.length]}`}>
-                  <td className='text-xs text-gray-400 pr-2 pl-2 py-1 align-top'>{i + 1}</td>
-                  <td className='py-1 px-2 align-top'>{ir.ingredient}</td>
-                  <td className='py-1 px-2 align-top text-xs text-gray-500 whitespace-nowrap'>
+                  <td className='text-xs md:text-sm text-gray-400 pr-2 md:pr-3 pl-2 md:pl-3 py-2 md:py-3 align-top'>{i + 1}</td>
+                  <td className='py-2 md:py-3 px-2 md:px-3 align-top text-sm md:text-base'>{ir.ingredient}</td>
+                  <td className='py-2 md:py-3 px-2 md:px-3 align-top text-xs md:text-sm text-gray-500 whitespace-nowrap'>
                     {recipeMap[ir.recipeKey]?.title.slice(0, 8) || ''}
                   </td>
                 </tr>

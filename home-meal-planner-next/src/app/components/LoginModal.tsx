@@ -47,46 +47,48 @@ export default function LoginModal() {
 
   return (
     <Modal open={true} onClose={() => {}}>
-      <h2 className='text-xl font-bold mb-2 lg:mb-6'>Kirjaudu sisään</h2>
-      <form onSubmit={handleSubmit} className='space-y-4 lg:flex-col lg:flex lg:gap-4'>
-        <div>
-          <label htmlFor='username' className='block mb-1 font-medium '>
-            Käyttäjätunnus
-          </label>
-          <input
-            id='username'
-            type='text'
-            className='w-full border p-2 rounded'
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete='username'
-            required
-          />
+      <h2 className='text-xl md:text-2xl font-bold mb-4 md:mb-6'>Kirjaudu sisään</h2>
+      <form onSubmit={handleSubmit} className='space-y-4 md:space-y-6'>
+        <div className='space-y-2 md:space-y-3'>
+          <div>
+            <label htmlFor='username' className='block mb-1 md:mb-2 font-medium text-sm md:text-base'>
+              Käyttäjätunnus
+            </label>
+            <input
+              id='username'
+              type='text'
+              className='w-full border p-3 md:p-4 rounded-lg text-sm md:text-base'
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete='username'
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor='password' className='block mb-1 md:mb-2 font-medium text-sm md:text-base'>
+              Salasana
+            </label>
+            <input
+              id='password'
+              type='password'
+              className='w-full border p-3 md:p-4 rounded-lg text-sm md:text-base'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete='current-password'
+              required
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor='password' className='block mb-1 font-medium'>
-            Salasana
-          </label>
-          <input
-            id='password'
-            type='password'
-            className='w-full border p-2 rounded'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete='current-password'
-            required
-          />
-        </div>
-        {error && <div className='text-red-600 text-sm'>{error}</div>}
-        <div className='flex gap-2 justify-between'>
-          <Button type='button' variant='secondary' className='' onClick={logout} disabled={isLoading}>
+        {error && <div className='text-red-600 text-sm md:text-base'>{error}</div>}
+        <div className='flex gap-3 md:gap-4 justify-between'>
+          <Button type='button' variant='secondary' onClick={logout} disabled={isLoading} size='lg'>
             Vieras
           </Button>
-          <Button type='submit' variant='primary' className='' disabled={isLoading}>
+          <Button type='submit' variant='primary' disabled={isLoading} size='lg'>
             {isLoading ? 'Kirjaudutaan...' : 'Kirjaudu'}
           </Button>
         </div>
-        <div className='text-xs text-gray-500 text-center mt-2'>
+        <div className='text-xs md:text-sm text-gray-500 text-center mt-4 md:mt-6'>
           Vierailijan ruokalistat tallentuvat omalle laitteelle.
         </div>
       </form>

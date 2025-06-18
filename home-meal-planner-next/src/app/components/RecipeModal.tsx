@@ -1,3 +1,4 @@
+'use client'
 import { Recipe } from "../recipes";
 import { Button } from "./Button";
 import { Modal } from "./Modal";

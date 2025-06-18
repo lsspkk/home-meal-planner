@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react'
 import { useAuth } from '../AuthContext'
 import { useToast } from '../ToastContext'

@@ -24,29 +24,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className='bg-gray-50 min-h-screen'>
         <AuthProvider>
-          <ToastProvider>
-            <AppStateProvider>
-              <ThemeProvider>
+          <ThemeProvider>
+            <ToastProvider>
+              <AppStateProvider>
                 <LoginModal />
                 <ErrorBoundary>
-                  <nav className='flex items-center gap-4 px-4 py-2 bg-white shadow-sm border-b'>
-                    <Link href='/' className='flex items-center gap-2 font-bold text-lg'>
-                      <Image src='/favicon.svg' alt='Favicon' width={28} height={28} className='w-7 h-7' />
+                  <nav className='flex items-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 bg-white shadow-sm border-b'>
+                    <Link href='/' className='flex items-center gap-2 md:gap-3 font-bold text-lg md:text-xl'>
+                      <Image src='/favicon.svg' alt='Favicon' width={28} height={28} className='w-7 h-7 md:w-8 md:h-8' />
                       <span className='navbar-title-shadow'>Kodin ruokalista</span>
                     </Link>
                     <div className='flex-1' />
-                    <Link href='/about' className='p-2 rounded hover:bg-gray-100' aria-label='Tietoa sovelluksesta'>
-                      <InformationCircleIcon className='w-7 h-7 text-gray-600' />
+                    <Link href='/about' className='p-2 md:p-3 rounded-lg hover:bg-gray-100 transition-colors' aria-label='Tietoa sovelluksesta'>
+                      <InformationCircleIcon className='w-7 h-7 md:w-8 md:h-8 text-gray-600' />
                     </Link>
-                    <Link href='/settings' className='ml-1 p-2 rounded hover:bg-gray-100' aria-label='Asetukset'>
-                      <Cog6ToothIcon className='w-7 h-7 text-gray-600' />
+                    <Link href='/settings' className='ml-1 p-2 md:p-3 rounded-lg hover:bg-gray-100 transition-colors' aria-label='Asetukset'>
+                      <Cog6ToothIcon className='w-7 h-7 md:w-8 md:h-8 text-gray-600' />
                     </Link>
                   </nav>
-                  <main className='max-w-2xl mx-auto py-0 sm:p-4 w-full'>{children}</main>
+                  <main className='py-0 md:py-4 w-full'>{children}</main>
                 </ErrorBoundary>
-              </ThemeProvider>
-            </AppStateProvider>
-          </ToastProvider>
+              </AppStateProvider>
+            </ToastProvider>
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

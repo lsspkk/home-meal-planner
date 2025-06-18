@@ -6,6 +6,7 @@ export interface ToastState {
   message: string
   type: 'error' | 'success' | 'info' | 'warning'
   id: string
+  timestamp: number
 }
 
 interface ToastContextType {
@@ -19,7 +20,27 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const showToast = useCallback((message: string, type: 'error' | 'success' | 'info' | 'warning') => {
     const id = Date.now().toString()
-    setToasts((prev) => [...prev, { message, type, id }])
+    const newToast = { message, type, id, timestamp: Date.now() }
+    
+    // Replace existing toast if it's the same type and recent (within 2 seconds)
+    setToasts((prev) => {
+      const recentToast = prev.find(toast => 
+        toast.type === type && 
+        Date.now() - toast.timestamp < 2000
+      )
+      
+      if (recentToast) {
+        // Update existing toast with new message and timestamp
+        return prev.map(toast => 
+          toast.id === recentToast.id 
+            ? { ...newToast, id: recentToast.id }
+            : toast
+        )
+      }
+      
+      // Add new toast
+      return [...prev, newToast]
+    })
   }, [])
 
   const removeToast = useCallback((id: string) => {
@@ -32,7 +53,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {toasts.map((toast) => (
-        <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
+        <Toast 
+          key={toast.id} 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => removeToast(toast.id)} 
+        />
       ))}
     </ToastContext.Provider>
   )

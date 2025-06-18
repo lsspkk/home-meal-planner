@@ -10,7 +10,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string
   icon?: ReactNode
   rounded?: boolean
-  showTextOnMobile?: boolean
+  size?: 'sm' | 'md' | 'lg'
 }
 
 const themeStyles: Record<string, Record<ButtonVariant, string>> = {
@@ -52,6 +52,18 @@ const themeStyles: Record<string, Record<ButtonVariant, string>> = {
   },
 }
 
+const sizeStyles = {
+  sm: 'px-2 py-1 text-sm min-h-[32px]',
+  md: 'px-3 py-2 text-sm md:text-base min-h-[40px]',
+  lg: 'px-4 py-2 text-base min-h-[44px]',
+}
+
+const roundedSizeStyles = {
+  sm: 'p-1.5 min-w-[32px] min-h-[32px]',
+  md: 'p-2 min-w-[40px] min-h-[40px]',
+  lg: 'p-2.5 min-w-[44px] min-h-[44px]',
+}
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -59,8 +71,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className = '',
       disabled,
       icon,
-      showTextOnMobile = false,
       rounded = false,
+      size = 'md',
       children,
       ...props
     },
@@ -68,26 +80,26 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const { theme } = useTheme()
     const themeClass = themeStyles[theme]?.[variant] || themeStyles['white'][variant]
+    const sizeClass = rounded ? roundedSizeStyles[size] : sizeStyles[size]
+    
     return (
       <button
         ref={ref}
-        className={`rounded font-semibold transition text-sm sm:text-base shadow ${themeClass} ${
-          disabled ? 'opacity-50 cursor-not-allowed' : ''
-        }${rounded ? 'rounded-full p-0 sm:rounded scale-110 w-9 h-9 pt-1 mx-2' : 'px-3 py-1'} ${className}`}
+        className={`
+          font-medium transition-all duration-200 
+          ${rounded ? 'rounded-full' : 'rounded'}
+          ${sizeClass}
+          ${themeClass}
+          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+          ${className}
+        `}
         disabled={disabled}
         {...props}
       >
-        {icon ? (
-          <>
-            <span className={showTextOnMobile ? 'inline-flex items-center gap-2' : 'inline-flex items-center gap-2'}>
-              <span className={showTextOnMobile ? '' : 'sm:mr-2'}>{icon}</span>
-              {/* On mobile, only icon unless showTextOnMobile is true */}
-              <span className={showTextOnMobile ? '' : 'hidden sm:inline'}>{children}</span>
-            </span>
-          </>
-        ) : (
-          children
-        )}
+        <span className={`inline-flex items-center ${rounded ? 'justify-center' : 'gap-2'}`}>
+          {icon && <span className="flex-shrink-0">{icon}</span>}
+          {children && <span className={rounded ? 'sr-only' : ''}>{children}</span>}
+        </span>
       </button>
     )
   }

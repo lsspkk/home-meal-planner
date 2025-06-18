@@ -120,3 +120,70 @@ To keep the application state (such as the currently selected week) consistent b
   - The modal (or form) sends a request (using the endpoint /user/{id}/resetpassword) to the backend to update the user's password.
 
 ---
+
+## Responsive Design Guidelines
+
+This application follows a **mobile-first** design approach with a single desktop variant for medium-sized displays. On large displays, content is centered for optimal readability.
+
+### Breakpoint Strategy
+
+- **Mobile First**: Design starts with mobile layout (default styles)
+- **Medium (md)**: 768px and above - Desktop variant
+- **Large (lg)**: 1024px and above - Centered content with max-width
+- **No Extra Large (xl)**: Avoid xl breakpoints to keep design simple
+
+### Layout Principles
+
+#### Mobile (xs and sm)
+- **Full Width**: Content uses full viewport width
+- **Stacked Layout**: Elements stack vertically for easy thumb navigation
+- **Touch-Friendly**: Minimum 44px touch targets for buttons
+- **Compact Spacing**: Reduced padding and margins for screen efficiency
+- **Hidden Elements**: Non-essential text labels hidden, icons preferred
+
+#### Desktop (md)
+- **Centered Content**: Main content area centered with max-width
+- **Horizontal Layout**: Elements arranged horizontally where appropriate
+- **Larger Spacing**: Increased padding and margins for better readability
+- **Text Labels**: Full text labels shown alongside icons
+- **Hover States**: Interactive hover effects for mouse users
+
+#### Large Displays (lg)
+- **Max-Width Container**: Content limited to max-width for readability
+- **Centered Layout**: Content centered horizontally in viewport
+- **Optimal Reading**: Text and spacing optimized for desktop reading
+
+### Component Guidelines
+
+#### Buttons
+- **Mobile**: Icon-only or icon + short text, compact padding
+- **Desktop**: Icon + full text, comfortable padding (px-4 py-2)
+- **Touch Targets**: Minimum 44px height on mobile
+- **Spacing**: Consistent gap between button groups
+
+#### Cards
+- **Mobile**: Minimal padding (p-2), full-width borders
+- **Desktop**: Comfortable padding (p-4), rounded corners with shadow
+- **Content**: Responsive text sizing and spacing
+
+#### Navigation
+- **Mobile**: Bottom navigation or hamburger menu
+- **Desktop**: Top navigation bar with full labels
+- **Week Navigation**: Horizontal on desktop, vertical on mobile
+
+#### Forms
+- **Mobile**: Stacked inputs, full-width
+- **Desktop**: Side-by-side where appropriate, reasonable max-width
+- **Touch Input**: Large input fields for mobile keyboards
+
+
+#### Container Strategy
+- **Mobile**: No container, full width
+- **Desktop**: `max-w-2xl mx-auto` for main content
+- **Large**: `max-w-4xl mx-auto` for wider content areas
+
+#### Typography Scale
+- **Mobile**: Smaller text sizes for screen efficiency
+- **Desktop**: Larger text sizes for readability
+- **Consistent**: Use Tailwind's responsive text utilities
+
